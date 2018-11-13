@@ -1,0 +1,8 @@
+﻿  heuristic.cpp
+d:\projekte\heuopt\uebung1\uebung1\heuristic.cpp(36): warning C4018: "<": Konflikt zwischen "signed" und "unsigned"
+d:\projekte\heuopt\uebung1\uebung1\heuristic.cpp(49): warning C4018: "<": Konflikt zwischen "signed" und "unsigned"
+d:\projekte\heuopt\uebung1\uebung1\heuristic.cpp(94): warning C4018: "<": Konflikt zwischen "signed" und "unsigned"
+d:\projekte\heuopt\uebung1\uebung1\heuristic.cpp(107): warning C4018: "<": Konflikt zwischen "signed" und "unsigned"
+d:\projekte\heuopt\uebung1\uebung1\heuristic.cpp(112): warning C4018: "<": Konflikt zwischen "signed" und "unsigned"
+d:\projekte\heuopt\uebung1\uebung1\heuristic.cpp(243): warning C4018: "<": Konflikt zwischen "signed" und "unsigned"
+  Uebung1.vcxproj -> D:\Projekte\heuopt\Uebung1\Debug\Uebung1.exe
