@@ -57,6 +57,7 @@ void heuristic::Solution_Uebung0()
 	cout << "3. b) consecOpp(" << t1 << "," << t2 << ") = " << Get_Num_Cons_Opp(t1, t2) << "." << endl << endl;
 
 	timer.Stop();
+
 	// 4. SolutionFile erstellen
 	bool neueDatei = false;
 	string filename = "solution_ue0.csv";
@@ -88,38 +89,37 @@ void heuristic::Solution_Uebung0()
 //method creates a starting solution
 void heuristic::Easy_Startingsolution()
 {
+	timer.Start();
+
 	//initialisieren teamvektor:
 	size_t anzahlteams = u_number_teams;
 	vector<int> teams(anzahlteams);
 	for (int i = 0; i < anzahlteams; ++i) {
 		teams[i] = i;
 	}
-	bool checkvarteami = true;
-	bool checkvarteamvsi = true;
 
-	//testoutputs:
-	//cout << endl << "Laenge Array (anzahl teams): " << teams.size() << endl;
-	//cout << "Team 1: " << teams[0] << endl;
-	//cout << "Anzahl Runden(hinrunde): " << u_number_rounds / 2 << endl;
+	//initialisiere bool varibalen für später
+	bool checkvarteami = true;  //team1
+	bool checkvarteamvsi = true;  //team2
 
-	//schleife für alle hinrunden:
+	//schleife für alle hinrunden (anzahl runden/2):
 
 	for (int j = 0; j < u_number_rounds/2; ++j) {
 
-		//cout << "Runde: " << j + 1 << endl;
 		//erstellen spielplan für runde i:
 
 		for (int i = 0; i < u_number_teams/2; ++i) {
-			//erstellen cases für heim oder auswärts - TO DO
-			//erstellen von n1 und n2
+			//erstellen cases für heim oder auswärts
+			//erstellen von n1 und n2:
+			//Initialisieren:
 			int n1 = 0;
 			int n2 = 0;
 			int k = 1;
-			if (j-k >0){
+
+			//n1:
+			if (j-k >0){    //runde 3 und mehr
 				checkvarteami = Get_Match(teams[i], j-1).second;
-				//cout << "Home/Guest(1/0): " << checkvarteami;
 				while (checkvarteami == Get_Match(teams[i],j-k).second){
-					//cout << endl << "n1 wird erhoeht!  k= " <<k << " j=" << j << " j-k=" << j-k << endl;
 					++n1;
 					++k;
 					if (j - k < 0) {
@@ -127,15 +127,15 @@ void heuristic::Easy_Startingsolution()
 					}
 				}
 			}
-			else if (j-k==0) { n1 = 1; }
-			else { n1 = 0; };
+			else if (j-k==0) { n1 = 1; }  //runde 2
+			else { n1 = 0; };   //runde 1
 
+
+			//n2:
 			k = 1;
-			if (j - k >0) {
+			if (j - k >0) {    //runde 3 und mehr
 				checkvarteamvsi = Get_Match(teams[u_number_teams-i-1], j - 1).second;
-				//cout << "Home/Guest(1/0): " << checkvarteamvsi;
 				while (checkvarteamvsi == Get_Match(teams[u_number_teams - i - 1], j - k).second) {
-					//cout << endl << "n1 wird erhoeht!  k= " <<k << " j=" << j << " j-k=" << j-k << endl;
 					++n2;
 					++k;
 					if (j - k < 0) {
@@ -143,13 +143,11 @@ void heuristic::Easy_Startingsolution()
 					}
 				}
 			}
-			else if (j - k == 0) { n2 = 1; }
-			else { n2 = 0; };
-			//cout << "team " << teams[i] + 1 << ":  " <<  "n1: " << n1 << endl;
-			//cout << "team " << teams[u_number_teams - i - 1] + 1 << ":  " << "n2: " << n2 << endl;
-			//n1 = 0;
+			else if (j - k == 0) { n2 = 1; }   //runde 2
+			else { n2 = 0; };  //runde 1
 
-			//entscheiden nach cases anhand n1 und n2:
+
+			//entscheiden nach cases anhand n1 und n2 und dann entsprechendes setzten der paarung für hin- und rueckrunde:
 
 			if (n2 > n1) {
 				if (checkvarteamvsi == true) {
@@ -235,27 +233,44 @@ void heuristic::Easy_Startingsolution()
 		}
 
 
-
-		//cout << endl;
-		//neuanordnen des teamvektors:
+		//neuanordnen des teamvektors (drehung polygon):
 		int tmp = teams[u_number_teams - 2];
-		//cout << "Temp variable index: " << tmp << endl;
 		for (int i = 2; i < anzahlteams; ++i) {
 			teams[u_number_teams - i] = teams[u_number_teams - i - 1];
-			//cout << i << endl;
 		}
 		teams[0] = tmp;
-
-		//testoutputs
-		//for (auto i : teams)
-		//	cout << i << ' ';
-		//cout << endl;
 
 
 	}
 
-	
+	timer.Stop();
+
+	//SolutionFile erstellen
+	bool neueDatei = false;
+	string filename = "easy_solution.csv";
+	ifstream temp(filename);
+	if (!temp) neueDatei = true;
+	else temp.close();
+
+	ofstream stream(filename, ios::app);
+	locale myloc("");
+	stream.imbue(myloc);
+
+	if (neueDatei)
+		stream << "Instanzname;Anzahl Teams;Dist;Time;" << endl; // ';'= column separator
+																							   //Name
+	stream << s_instance_name << ";";
+	//Num Teams
+	stream << u_number_teams << ";";
+	//Dist
+	stream << Calculate_Distance() << ";";
+	//Time
+	stream << timer.Seconds() << ";";
+	stream << endl;
+
 }
+
+
 //method creates a starting solution
 void heuristic::Advanced_Startingsolution()
 {
@@ -265,11 +280,93 @@ void heuristic::Advanced_Startingsolution()
 
 bool heuristic::Check_Constraints()
 {
-	// TODO
-	cout << "Error: Feasibility check for the schedule not implemented";
-	throw;
+	//Initialisieren:
+	vector<pair<int,bool>> reihe;
+	int check;
+	bool location;
+	pair<int, bool> paarung;
 
-	return false;
+	//Checken ob Reihen valide (jede zahl nur einmal pro Reihe):
+	for (int j = 0; j < u_number_teams; ++j) {  //team j (reihe)
+		for (int i = 0; i < u_number_rounds; ++i) { //runde i (spalte)
+
+			//eintrag in reihe und spalte i,j auslesen
+			location = Get_Match(j, i).second;
+			check = Get_Match(j, i).first;
+			paarung = { check, location };
+
+			//testen ob bereits in vektor vorhanden
+			if (find(reihe.begin(), reihe.end(), paarung) != reihe.end()) {
+				//falls ja keine valide loesung -> fehler
+				cout << "Invalid solution: Error in row " << j << endl;
+				return false;
+			}
+			else {
+				//falls nein ist die loesung weiterhin valide
+				//element an vektor anfügen:
+				reihe.push_back(paarung);
+			}
+
+
+		}
+		//vektor zurücksetzten für die nächste reihe:
+		while (!reihe.empty()) {
+			reihe.pop_back();
+		}
+
+
+	}
+
+	//Checken ob Spalten Valide:
+	//Jede Zahl nur einmal pro Spalte
+	
+	for (int i = 0; i < u_number_rounds; ++i) {   //runde i (spalte)
+		for (int j = 0; j < u_number_teams; ++j) {   //team j (reihe)
+
+			//eintrag in reihe und spalte i,j auslesen
+			location = Get_Match(j, i).second;
+			check = Get_Match(j, i).first;
+			paarung = { check, location };
+
+			//testen ob bereits in vektor vorhanden
+			if (find(reihe.begin(), reihe.end(), paarung) != reihe.end()) {
+				//falls ja keine valide loesung -> fehler
+				cout << "Invalid solution: Error in column " << i << endl;
+				return false;
+			}
+			else {
+				//falls nein ist die loesung weiterhin valide
+				//element an vektor anfügen:
+				reihe.push_back(paarung);
+			}
+		}
+		//vektor zurücksetzten für die nächste reihe:
+			
+		while (!reihe.empty()) {
+			reihe.pop_back();
+		}
+		
+	}
+	
+	//Paarungen passen?
+
+	for (int i = 0; i < u_number_rounds; ++i) {   //runde i (spalte)
+		for (int j = 0; j < u_number_teams; ++j) {   //team j (reihe)
+			if (j != Get_Match(Get_Match(j, i).first, i).first) {   //spielen die selben teams gegeneinander?
+				cout << "Invalid solution: Wrong oppenent in round " << i << " for team " << j << endl;
+				return false;
+			}
+			else if (Get_Match(j, i).second == Get_Match(Get_Match(j, i).first, i).second) {     //ein team home ein team guest?
+				cout << "Invalid solution: Home/Guest pairing error in round " << i << " for team " << j << endl;
+				return false;
+			}
+
+		}
+	}
+
+	//wenn alle tests keinen fehler werfen ist es eine valide lösung:
+	cout << "Valid solution given." << endl;
+	return true;
 }
 
 // ---------------------------------------------------------------------------------------------------------->

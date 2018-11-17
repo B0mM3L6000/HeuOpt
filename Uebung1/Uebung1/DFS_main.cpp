@@ -26,6 +26,30 @@ void CreateStartSolution( string filename, string output )
 	// Schreibe aktuellen Spielplan in Konsole
 	heureka.Print_Schedule(true);
 
+	//check ob valide Lösung:
+	bool easy_valid;
+	easy_valid = heureka.Check_Constraints();
+
+	//Kosten berechnen:
+	unsigned costs_easy;
+	costs_easy = heureka.Calculate_Distance();
+	cout << "Costs: " << costs_easy << endl;
+
+	//weiter mit advanced:
+	heureka.Advanced_Startingsolution();
+	
+	// Schreibe aktuellen Spielplan in Konsole
+	heureka.Print_Schedule(true);
+
+	//check ob valide Lösung:
+	bool advanced_valid;
+	advanced_valid = heureka.Check_Constraints();
+
+	//Kosten berechnen:
+	unsigned costs_adv;
+	costs_adv = heureka.Calculate_Distance();
+	cout << "Costs: " << costs_adv << endl;
+
 	system("pause");
 }
 
