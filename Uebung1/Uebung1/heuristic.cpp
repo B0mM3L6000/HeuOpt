@@ -281,15 +281,18 @@ void heuristic::Easy_Startingsolution()
 
 //advanced method creates a starting solution
 
-// -> (hilfsfunktion für vektor sortieren(absteigend:)
+// -> (hilfsfunktion für vektor sortieren(absteigend erste spalte):)
 bool sortcol(const vector<int>& v1, const vector<int>& v2) {
 	return v1[0] > v2[0];
 }
-// -> (hilfsfunktion für vektor sortieren(aufsteigend:)
+// -> (hilfsfunktion für vektor sortieren(aufsteigend erste spalte):)
 bool sortcolasc(const vector<int>& v1, const vector<int>& v2) {
 	return v1[0] < v2[0];
 }
-
+// -> (hilfsfunktion für vektor sortieren(aufsteigend zweite spalte):)
+bool sortcolasc2(const vector<int>& v1, const vector<int>& v2) {
+	return v1[1] < v2[1];
+}
 
 
 void heuristic::Advanced_Startingsolution()
@@ -568,6 +571,9 @@ void heuristic::Advanced_Startingsolution()
 
 	}
 
+
+	sort(team_matched.begin(), team_matched.end(), sortcolasc2);  //sortiert aufsteigend anhand zweiter spalte (reales team)
+
 	//DEBUGGING: gebe vektor aus mit den zuordnungen:
 	cout << endl << "ZUGEORDNETE TEAMS (ABSTRAKT/REAL):" << endl;
 	for (int i = 0; i < team_matched.size(); ++i) {
@@ -576,11 +582,42 @@ void heuristic::Advanced_Startingsolution()
 
 
 
-	//Erstelle neuen Spielplan anhand abstrakten Spielplan und Zuordnung:
+	//erstellen temporärer Spielplan anhand des alten spielplans und der zuordnung:
+	
+	vector < vector < pair <int, bool> > > tmpspielplan;
+	int abstractteam;
+	int tmpabstractteam;
+	int tmprealteam;
+	bool tmpabshomeguest;
 
+	for (int i = 0; i < u_number_teams; ++i) { //schleife pro reihe , also pro reales team
+		abstractteam = team_matched[i][0];
+		for (int j = 0; j < u_number_rounds; ++j) { //schleife pro reihe, also pro spielplanrunde für dieses reale team
+			tmpabstractteam = Get_Match(abstractteam, j).first;
+			tmpabshomeguest = Get_Match(abstractteam, j).second;
+			
+			for (int k = 0; k < team_matched.size(); ++k) {
+				if (team_matched[k][0] == tmpabstractteam) {
+					tmprealteam = team_matched[k][1];
+					break;
+				}
+			}
+			tmpspielplan.push_back({});
+			tmpspielplan[i].push_back({ tmprealteam,tmpabshomeguest });
+		}
+	}
 	
 
 
+	
+	//Erstelle neuen Spielplan anhand abstrakten Spielplan und Zuordnung:
+	
+	for (int i = 0; i < u_number_teams; ++i) { //teams
+		for (int j = 0; j < u_number_rounds; ++j) { //runden für dieses team
+			Set_Match(i, j, tmpspielplan[i][j].first, tmpspielplan[i][j].second);
+		}
+	}
+	
 
 
 
