@@ -86,7 +86,10 @@ void heuristic::Solution_Uebung0()
 	stream << endl;
 }
 
-//method creates a starting solution
+//-------------------------------------------------------------------------------------------------------------
+
+//easy method creates a starting solution
+
 void heuristic::Easy_Startingsolution()
 {
 	timer.Start();
@@ -274,7 +277,9 @@ void heuristic::Easy_Startingsolution()
 }
 
 
-//method creates a starting solution
+//-------------------------------------------------------------------------------------------------------------
+
+//advanced method creates a starting solution
 
 // -> (hilfsfunktion für vektor sortieren(absteigend:)
 bool sortcol(const vector<int>& v1, const vector<int>& v2) {
@@ -284,6 +289,9 @@ bool sortcol(const vector<int>& v1, const vector<int>& v2) {
 bool sortcolasc(const vector<int>& v1, const vector<int>& v2) {
 	return v1[0] < v2[0];
 }
+
+
+
 void heuristic::Advanced_Startingsolution()
 {
 	timer.Start();
@@ -389,6 +397,187 @@ void heuristic::Advanced_Startingsolution()
 
 	//Ordne reale Teams abstrakten Teams zu:
 
+	vector<vector<int>> team_matched;   //abstraktes team, reales team
+	int tmpteam1;  //reales team
+	int tmpteam2;  //reales team
+	int absteam1;  //abstraktes team
+	int absteam2;  //abstraktes team
+	int tmpabsteam1;
+	int tmpabsteam2;
+	bool allreadymatched1;  //reales team
+	bool allreadymatched2;  //reales team
+	bool absallreadymatched1;  //abstraktes team
+	bool absallreadymatched2;  //abstraktes team
+	bool usedabsteam;
+
+	for (int j = 0; j < distance_vector.size(); j++) {
+		
+		//wenn alle teams zugeordnet, dann beende die Zuordnung 
+		if (team_matched.size() == u_number_teams) {
+			break;
+		}
+
+		tmpteam1 = distance_vector[j][1]; //reales team 1 aus paarungseintrag
+		tmpteam2 = distance_vector[j][2]; //reales team 2 aus paarungseintrag
+		
+		//ist reales team bereits zugeordnet? team1:
+		allreadymatched1 = false;
+		for (int i = 0; i < team_matched.size(); ++i) {
+			if (tmpteam1 == team_matched[i][1]) {
+				allreadymatched1 = true;
+				tmpabsteam1 = team_matched[i][0];
+				break;
+			}
+		}
+
+		//ist reales team bereits zugeordnet? team2:
+		allreadymatched2 = false;
+		for (int i = 0; i < team_matched.size(); ++i) {
+			if (tmpteam2 == team_matched[i][1]) {
+				allreadymatched2 = true;
+				tmpabsteam2 = team_matched[i][0];
+				break;
+			}
+		}
+
+		//falls beide noch nicht zugeordnet sind
+		if (allreadymatched1 == false && allreadymatched2 == false) {
+			for (int k = 0; k < c_o_vector.size(); ++k) {
+				absteam1 = c_o_vector[k][1];
+				absteam2 = c_o_vector[k][2];
+
+				//ist abstraktes team bereits zugeordnet? team1:
+				absallreadymatched1 = false;
+				for (int i = 0; i < team_matched.size(); ++i) {
+					if (tmpteam1 == team_matched[i][0]) {
+						absallreadymatched1 = true;
+						break;
+					}
+				}
+
+				//ist abstraktes team bereits zugeordnet? team2:
+				absallreadymatched2 = false;
+				for (int i = 0; i < team_matched.size(); ++i) {
+					if (tmpteam2 == team_matched[i][0]) {
+						absallreadymatched2 = true;
+						break;
+					}
+				}
+
+				//wenn beide abstrakten teams ebenfalls frei sind, dann zuordnen zu den beiden realen teams und in vektor das paar eintragen. 
+				//anschließend innere schleife abbrechen und zum nächsten distanz paar realer teams gehen
+				if (absallreadymatched2 == false && absallreadymatched1 == false) {
+					team_matched.push_back({ absteam1, tmpteam1 });
+					team_matched.push_back({ absteam2, tmpteam2 });
+					break;
+				}
+
+
+			}
+		}
+
+
+		//falls NUR team1 (tmpteam1) noch nicht zugeordnet ist:
+
+		if (allreadymatched1 == false && allreadymatched2 == true) {
+			for (int k = 0; k < c_o_vector.size(); ++k) {
+				absteam1 = c_o_vector[k][1];
+				absteam2 = c_o_vector[k][2];
+				
+				
+				if (absteam1 == tmpabsteam2) { //ist absteam1 das bereits zugeordnete?
+					usedabsteam = false;
+					//Ist das andere abstrakte team noch frei?
+					for (int m = 0; m < team_matched.size(); ++m) {
+						if (absteam2 == team_matched[m][0]) {
+							usedabsteam = true;
+							break;
+						}
+					}
+
+					//falls das team noch frei ist, dann zuordnen:
+					if(usedabsteam == false){
+						team_matched.push_back({ absteam2, tmpteam1 });
+						break;
+					}
+				}
+				else if (absteam2 == tmpabsteam2) { //ist absteam2 das bereits zugeordnete?
+					usedabsteam = false;
+					//Ist das andere abstrakte team noch frei?
+					for (int m = 0; m < team_matched.size(); ++m) {
+						if (absteam1 == team_matched[m][0]) {
+							usedabsteam = true;
+							break;
+						}
+					}
+
+					//falls das team noch frei ist, dann zuordnen:
+					if (usedabsteam == false) {
+						team_matched.push_back({ absteam1, tmpteam1 });
+						break;
+					}
+				}
+			}
+		}
+
+		//falls NUR team2 (tmpteam2) noch nicht zugeordnet ist:
+
+		if (allreadymatched1 == true && allreadymatched2 == false) {
+			for (int k = 0; k < c_o_vector.size(); ++k) {
+				absteam1 = c_o_vector[k][1];
+				absteam2 = c_o_vector[k][2];
+
+
+				if (absteam1 == tmpabsteam1) { //ist absteam1 das bereits zugeordnete?
+					usedabsteam = false;
+					//Ist das andere abstrakte team noch frei?
+					for (int m = 0; m < team_matched.size(); ++m) {
+						if (absteam2 == team_matched[m][0]) {
+							usedabsteam = true;
+							break;
+						}
+					}
+
+					//falls das team noch frei ist, dann zuordnen:
+					if (usedabsteam == false) {
+						team_matched.push_back({ absteam2, tmpteam2 });
+						break;
+					}
+				}
+				else if (absteam2 == tmpabsteam1) { //ist absteam2 das bereits zugeordnete?
+					usedabsteam = false;
+					//Ist das andere abstrakte team noch frei?
+					for (int m = 0; m < team_matched.size(); ++m) {
+						if (absteam1 == team_matched[m][0]) {
+							usedabsteam = true;
+							break;
+						}
+					}
+
+					//falls das team noch frei ist, dann zuordnen:
+					if (usedabsteam == false) {
+						team_matched.push_back({ absteam1, tmpteam2 });
+						break;
+					}
+				}
+			}
+		}
+
+		//falls beide teams schon zugeordnet sind tue nichts und weiter zum nächsten eintrag
+
+
+	}
+
+	//DEBUGGING: gebe vektor aus mit den zuordnungen:
+	cout << endl << "ZUGEORDNETE TEAMS (ABSTRAKT/REAL):" << endl;
+	for (int i = 0; i < team_matched.size(); ++i) {
+		cout << team_matched[i][0] << " - " << team_matched[i][1] << endl;
+	}
+
+
+
+	//Erstelle neuen Spielplan anhand abstrakten Spielplan und Zuordnung:
+
 	
 
 
@@ -424,6 +613,9 @@ void heuristic::Advanced_Startingsolution()
 
 }
 
+//-------------------------------------------------------------------------------------------------------------
+
+//method that checks if solution is valid
 
 bool heuristic::Check_Constraints()
 {
@@ -515,6 +707,7 @@ bool heuristic::Check_Constraints()
 	cout << "Valid solution given." << endl;
 	return true;
 }
+
 
 // ---------------------------------------------------------------------------------------------------------->
 // ab hier: Hilfsfunktionen, die Sie benutzten können, aber deren Aufbau irrelevant ist
