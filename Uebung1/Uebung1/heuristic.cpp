@@ -243,6 +243,9 @@ void heuristic::Easy_Startingsolution()
 
 	}
 
+
+	//Auswertung:
+
 	timer.Stop();
 
 	//SolutionFile erstellen
@@ -272,9 +275,153 @@ void heuristic::Easy_Startingsolution()
 
 
 //method creates a starting solution
+
+// -> (hilfsfunktion für vektor sortieren(absteigend:)
+bool sortcol(const vector<int>& v1, const vector<int>& v2) {
+	return v1[0] > v2[0];
+}
+// -> (hilfsfunktion für vektor sortieren(aufsteigend:)
+bool sortcolasc(const vector<int>& v1, const vector<int>& v2) {
+	return v1[0] < v2[0];
+}
 void heuristic::Advanced_Startingsolution()
 {
-	// TODO 
+	timer.Start();
+
+	//Berechne und speichere ConsecOpps für alle abstrakten Teams im Dummyspielplan (aus easy_solution):
+	
+	int counter;
+
+	for (int i = 0; i < u_number_teams; ++i) {
+		for (int j = 1+i; j < u_number_teams; ++j) {
+			counter = 0;
+			for (int n = 1; n < u_number_rounds; ++n)
+			{
+				if (Get_Match(i, n - 1).first == Get_Match(j, n).first)
+					counter++;
+				if (Get_Match(i, n).first == Get_Match(j, n - 1).first)
+					counter++;
+			}
+			Set_Num_Cons_Opp(i, j, counter);
+			Set_Num_Cons_Opp(j, i, counter);
+		}
+	}
+
+
+
+	//Erstelle absteigend sortierte Liste der consecopps:
+
+	// -> Liste erstellen:
+	vector<vector<int>> c_o_vector; //Vektor in dem die consecopp paare stehen
+	vector<int> pairwithconsec;   // Anzahl consecopps , team1, team2
+
+	for (int i = 0; i < u_number_teams; ++i) {
+		for (int j = 1 + i; j < u_number_teams; ++j) {
+			//neuer Eintrag:
+			pairwithconsec.push_back(Get_Num_Cons_Opp(i,j));
+			pairwithconsec.push_back(i);
+			pairwithconsec.push_back(j);
+			c_o_vector.push_back(pairwithconsec);
+			//pairwithconsec zurücksetzen:
+			while (!pairwithconsec.empty()) {
+				pairwithconsec.pop_back();
+			}
+
+		}
+	}
+
+	// -> Sortieren
+
+	////////vektor anzeigen (debugging:)
+	/*
+	int m = c_o_vector.size();
+	int n = c_o_vector[0].size();
+	cout << "The consec before sorting is:\n";
+	for (int i = 0; i < m; i++)
+	{
+		for (int j = 0; j < n; j++)
+			cout << c_o_vector[i][j] << " ";
+		cout << endl;
+	}
+	*/
+
+	sort(c_o_vector.begin(), c_o_vector.end(), sortcol);  //sortiert absteigend anhand erster spalte
+
+	////////vektor anzeigen (debugging:)
+	/*
+	cout << "The consec after sorting is:\n";
+	for (int i = 0; i < m; i++)
+	{
+		for (int j = 0; j < n; j++)
+			cout << c_o_vector[i][j] << " ";
+		cout << endl;
+	}
+	*/
+
+
+
+	//Erstelle aufsteigend sortierte Liste der Teampaarung nach Distanz der realen Teams (aus Distanzmatrix):
+
+	// -> Liste erstellen:
+	vector<vector<int>> distance_vector; //Vektor in dem die Distanz Teampaare stehen
+	vector<int> pairwithdistance;   // distance , team1, team2
+
+	for (int i = 0; i < u_number_teams; ++i) {
+		for (int j = 1 + i; j < u_number_teams; ++j) {
+			//neuer Eintrag:
+			pairwithdistance.push_back(Get_Distance(i, j));
+			pairwithdistance.push_back(i);
+			pairwithdistance.push_back(j);
+			distance_vector.push_back(pairwithdistance);
+			//pairwithdistance zurücksetzen:
+			while (!pairwithdistance.empty()) {
+				pairwithdistance.pop_back();
+			}
+
+		}
+	}
+
+	// -> Sortieren:
+
+	sort(distance_vector.begin(), distance_vector.end(), sortcolasc);  //sortiert aufsteigend anhand erster spalte
+
+
+
+	//Ordne reale Teams abstrakten Teams zu:
+
+	
+
+
+
+
+
+	//Auswertung:
+
+	timer.Stop();
+
+	//SolutionFile erstellen
+	bool neueDatei = false;
+	string filename = "advanced_solution.csv";
+	ifstream temp(filename);
+	if (!temp) neueDatei = true;
+	else temp.close();
+
+	ofstream stream(filename, ios::app);
+	locale myloc("");
+	stream.imbue(myloc);
+
+	if (neueDatei)
+		stream << "Instanzname;Anzahl Teams;Dist;Time;" << endl; // ';'= column separator
+																							   //Name
+	stream << s_instance_name << ";";
+	//Num Teams
+	stream << u_number_teams << ";";
+	//Dist
+	stream << Calculate_Distance() << ";";
+	//Time
+	stream << timer.Seconds() << ";";
+	stream << endl;
+
 }
 
 
