@@ -601,7 +601,7 @@ void heuristic::Advanced_Startingsolution()
 
 	for (int i = 0; i < u_number_teams; ++i) { //schleife pro reihe , also pro reales team
 		abstractteam = team_matched[i][0];
-		for (int j = 0; j < u_number_rounds; ++j) { //schleife pro reihe, also pro spielplanrunde für dieses reale team
+		for (int j = 0; j < u_number_rounds; ++j) { //schleife pro spalte, also pro spielplanrunde für dieses reale team
 			tmpabstractteam = Get_Match(abstractteam, j).first;
 			tmpabshomeguest = Get_Match(abstractteam, j).second;
 			
