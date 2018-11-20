@@ -452,8 +452,9 @@ void heuristic::Advanced_Startingsolution()
 				//ist abstraktes team bereits zugeordnet? team1:
 				absallreadymatched1 = false;
 				for (int i = 0; i < team_matched.size(); ++i) {
-					if (tmpteam1 == team_matched[i][0]) {
+					if (absteam1 == team_matched[i][0]) {
 						absallreadymatched1 = true;
+						//cout << "erste team zugeordnet" << endl;
 						break;
 					}
 				}
@@ -461,8 +462,9 @@ void heuristic::Advanced_Startingsolution()
 				//ist abstraktes team bereits zugeordnet? team2:
 				absallreadymatched2 = false;
 				for (int i = 0; i < team_matched.size(); ++i) {
-					if (tmpteam2 == team_matched[i][0]) {
+					if (absteam2 == team_matched[i][0]) {
 						absallreadymatched2 = true;
+						//cout << "zweite team bereits zugeordnet" << endl;
 						break;
 					}
 				}
@@ -472,6 +474,9 @@ void heuristic::Advanced_Startingsolution()
 				if (absallreadymatched2 == false && absallreadymatched1 == false) {
 					team_matched.push_back({ absteam1, tmpteam1 });
 					team_matched.push_back({ absteam2, tmpteam2 });
+					//cout << absallreadymatched1 << absallreadymatched2 << endl;
+					//cout << "Matching absteam " << absteam1 << " mit real team " << tmpteam1 << "in doppelmatching." << endl;
+					//cout << "dazu noch absteam " << absteam2 << " mit real team " << tmpteam2 << endl;
 					break;
 				}
 
@@ -501,6 +506,7 @@ void heuristic::Advanced_Startingsolution()
 					//falls das team noch frei ist, dann zuordnen:
 					if(usedabsteam == false){
 						team_matched.push_back({ absteam2, tmpteam1 });
+						//cout << "matching team in erster einser schleife" << absteam2 << " mit real " << tmpteam1 << endl;
 						break;
 					}
 				}
@@ -517,6 +523,7 @@ void heuristic::Advanced_Startingsolution()
 					//falls das team noch frei ist, dann zuordnen:
 					if (usedabsteam == false) {
 						team_matched.push_back({ absteam1, tmpteam1 });
+						//cout << "matching team in erster zweier schleife" << absteam1 << " mit real " << tmpteam1 << endl;
 						break;
 					}
 				}
@@ -544,6 +551,7 @@ void heuristic::Advanced_Startingsolution()
 					//falls das team noch frei ist, dann zuordnen:
 					if (usedabsteam == false) {
 						team_matched.push_back({ absteam2, tmpteam2 });
+						//cout << "matching team in zweiter einser schleife" << absteam2 << " mit real " << tmpteam2 << endl;
 						break;
 					}
 				}
@@ -560,6 +568,7 @@ void heuristic::Advanced_Startingsolution()
 					//falls das team noch frei ist, dann zuordnen:
 					if (usedabsteam == false) {
 						team_matched.push_back({ absteam1, tmpteam2 });
+						//cout << "matching team in zweiter zweier schleife" << absteam1 << " mit real " << tmpteam2 << endl;
 						break;
 					}
 				}
