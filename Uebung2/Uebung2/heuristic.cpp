@@ -830,7 +830,7 @@ unsigned heuristic::Calculate_Distance()
 			}
 			else if (!Get_Match(t, n - 1).second && Get_Match(t, n).second)
 			{
-				cost += vv_distance[Get_Match(t, n).first][t];
+				cost += vv_distance[Get_Match(t, n - 1).first][t];
 			}
 			else if (!Get_Match(t, n - 1).second && !Get_Match(t, n).second)
 			{
