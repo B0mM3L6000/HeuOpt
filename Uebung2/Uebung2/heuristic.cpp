@@ -812,7 +812,23 @@ pair<int, int> heuristic::TestPrtSwapRds(unsigned team_i, unsigned round_k, unsi
 
 void heuristic::PrtSwapRds(unsigned team_i, unsigned round_k, unsigned round_l)
 {
-	// TODO
+	unsigned tmp_row = team_i;
+	for (unsigned i = 0; i < u_number_teams; i++) {
+		pair<unsigned, bool> tmp = Get_Match(tmp_row, round_k);
+		Set_Match(tmp_row, round_k, Get_Match(tmp_row, round_l).first, Get_Match(tmp_row, round_l).second);
+		Set_Match(tmp_row, round_l, tmp.first, tmp.second);
+
+		if (i % 2 == 0) {
+			tmp_row = Get_Match(tmp_row, round_k).first;
+		}
+		else {
+			tmp_row = Get_Match(tmp_row, round_l).first;
+		}
+		if (tmp_row == team_i) {
+			break;
+		}
+
+	}
 }
 
 pair<int, int> heuristic::TestPrtSwapTms(unsigned team_i, unsigned team_j, unsigned round_k)
@@ -832,7 +848,7 @@ void heuristic::PrtSwapTms(unsigned team_i, unsigned team_j, unsigned round_k)
 int heuristic::Move_SwapHA(unsigned k)
 {
 	int gain = 0;
-	SwapTms(0, 2);
+	PrtSwapRds(0, 0, 4);
 
 	return gain;
 }

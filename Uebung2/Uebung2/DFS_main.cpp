@@ -18,6 +18,8 @@ void CreateStartSolution( string filename, string output )
 
 	cout << "Das Erstellen der Startloesung hat " << timer.FormattedTime() << " Sekunden gedauert." << endl;
 
+	heureka.Check_Constraints();
+
 	heureka.Print_Schedule(true);
 
 	// Hier kommt die Lokale Suche hin
@@ -30,6 +32,7 @@ void CreateStartSolution( string filename, string output )
 	heureka.Print_Schedule(true);
 	cout << "Heuristische Suche hat " << timer.FormattedTime() << " Sekunden gedauert." << endl;
 	cout << "Die berechnete Loesung kostet: " << heureka.Calculate_Distance() << endl;
+	heureka.Check_Constraints();
 	system("pause");
 
 }
