@@ -704,6 +704,22 @@ heuristic::heuristic(string file)
 
 ////RECHNERÜBUNG 2///
 
+pair<int, int> heuristic::Which_rounds(unsigned team_i, unsigned team_j) {
+	//in welchen runden spielen die Teams gegeneinander?
+	unsigned hinrunde = 0;
+	unsigned rueckrunde = 0;
+	for (unsigned i = 0; i < u_number_rounds / 2; i++) {
+		unsigned enemy = Get_Match(team_i, i).first;
+		if (enemy == team_j) {
+			hinrunde = i;
+			rueckrunde = i + (u_number_rounds / 2);
+			break;
+		}
+	}
+	//cout << hinrunde << " " << rueckrunde << endl;
+	return make_pair(hinrunde, rueckrunde);
+}
+
 pair<int, int> heuristic::TestSwapHA(unsigned team_i, unsigned team_j)
 {
 	int delta_cost = 0; // gain
@@ -715,7 +731,20 @@ pair<int, int> heuristic::TestSwapHA(unsigned team_i, unsigned team_j)
 
 void heuristic::SwapHA(unsigned team_i, unsigned team_j)
 {
-	// TODO
+	//welche runden?:
+	unsigned hinrunde = Which_rounds(team_i, team_j).first;
+	unsigned rueckrunde = Which_rounds(team_i, team_j).second;
+
+	//home und aways neu:
+	bool hinrunde_team_i = Get_Match(team_j, hinrunde).second;
+
+
+	//home away tauschen:
+	Set_Match(team_i, hinrunde, team_j, hinrunde_team_i);
+	Set_Match(team_i, rueckrunde, team_j, !hinrunde_team_i);
+	Set_Match(team_j, hinrunde, team_i, !hinrunde_team_i);
+	Set_Match(team_j, rueckrunde, team_i, hinrunde_team_i);
+
 }
 
 pair<int, int> heuristic::TestSwapRds(unsigned round_k, unsigned round_l)
@@ -729,7 +758,14 @@ pair<int, int> heuristic::TestSwapRds(unsigned round_k, unsigned round_l)
 
 void heuristic::SwapRds(unsigned round_k, unsigned round_l)
 {
-	// TODO
+	//Spalten tauschen von oben nach unten:
+	for (unsigned i = 0; i < u_number_teams; i++) {
+		pair<unsigned, bool> tmp;
+		tmp = Get_Match(i, round_k);
+		Set_Match(i, round_k, Get_Match(i, round_l).first, Get_Match(i, round_l).second);
+		Set_Match(i, round_l, tmp.first, tmp.second);
+
+	}
 }
 
 pair<int, int> heuristic::TestSwapTms(unsigned team_i, unsigned team_j)
@@ -743,7 +779,26 @@ pair<int, int> heuristic::TestSwapTms(unsigned team_i, unsigned team_j)
 
 void heuristic::SwapTms(unsigned team_i, unsigned team_j)
 {
-	// TODO
+	for (unsigned i = 0; i < u_number_rounds; i++) {
+		pair<unsigned, bool> tmp_i = Get_Match(team_i, i);
+
+		//spielen teams gegeneinander in der runde? wenn nein dann:
+		if (tmp_i.first != team_j) {
+			pair<unsigned, bool> tmp_j = Get_Match(team_j, i);
+
+			//tauschen der matchups:
+			//Team_i:
+
+			Set_Match(team_i, i, tmp_j.first, tmp_j.second);
+			Set_Match(tmp_j.first, i, team_i, !tmp_j.second);
+
+			//Team_j:
+
+			Set_Match(team_j, i, tmp_i.first, tmp_i.second);
+			Set_Match(tmp_i.first, i, team_j, !tmp_i.second);
+
+		}
+	}
 }
 
 pair<int, int> heuristic::TestPrtSwapRds(unsigned team_i, unsigned round_k, unsigned round_l)
@@ -777,7 +832,7 @@ void heuristic::PrtSwapTms(unsigned team_i, unsigned team_j, unsigned round_k)
 int heuristic::Move_SwapHA(unsigned k)
 {
 	int gain = 0;
-	// TODO
+	SwapTms(0, 2);
 
 	return gain;
 }

@@ -102,6 +102,11 @@ public:
 	int Move_SwapTms(unsigned k);
 	int Move_PrtSwapRds(unsigned k);
 	int Move_PrtSwapTms(unsigned k);
+
+	//martins hilfsfunktionen:
+
+	//welches team spielt gegen welches?
+	pair<int, int> Which_rounds(unsigned team_i, unsigned team_j);
 };
 
 #endif /* HEURISTIC_H_ */

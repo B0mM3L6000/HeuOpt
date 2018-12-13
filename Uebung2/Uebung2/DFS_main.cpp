@@ -18,6 +18,7 @@ void CreateStartSolution( string filename, string output )
 
 	cout << "Das Erstellen der Startloesung hat " << timer.FormattedTime() << " Sekunden gedauert." << endl;
 
+	heureka.Print_Schedule(true);
 
 	// Hier kommt die Lokale Suche hin
 	// TODO
