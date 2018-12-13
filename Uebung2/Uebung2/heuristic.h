@@ -107,6 +107,9 @@ public:
 
 	//welches team spielt gegen welches?
 	pair<int, int> Which_rounds(unsigned team_i, unsigned team_j);
+	int distance_vorher(unsigned team_i, unsigned round);
+	int distance_nachher_vorne(unsigned team_i, unsigned round);
+	int distance_nachher_hinten(unsigned team_i, unsigned round);
 };
 
 #endif /* HEURISTIC_H_ */

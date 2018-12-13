@@ -704,6 +704,7 @@ heuristic::heuristic(string file)
 
 ////RECHNERÜBUNG 2///
 
+//hilfsfunktionen:
 pair<int, int> heuristic::Which_rounds(unsigned team_i, unsigned team_j) {
 	//in welchen runden spielen die Teams gegeneinander?
 	unsigned hinrunde = 0;
@@ -720,11 +721,97 @@ pair<int, int> heuristic::Which_rounds(unsigned team_i, unsigned team_j) {
 	return make_pair(hinrunde, rueckrunde);
 }
 
+int heuristic::distance_vorher(unsigned team, unsigned round) {
+	int distance = 0;
+	if (Get_Match(team, round - 1).second == false && Get_Match(team, round).second == false) {
+		distance = Get_Distance(Get_Match(team, round - 1).first, Get_Match(team, round).first);
+	}
+	else if (Get_Match(team, round - 1).second == false && Get_Match(team, round).second == true) {
+		distance =  Get_Distance(Get_Match(team, round - 1).first, team);
+	}
+	else if (Get_Match(team, round - 1).second == true && Get_Match(team, round).second == false) {
+		distance = Get_Distance(team, Get_Match(team, round).first);
+	}
+	return distance;
+
+}
+
+int heuristic::distance_nachher_vorne(unsigned team, unsigned round) {
+	int distance = 0;
+	if (Get_Match(team, round - 1).second == false && !Get_Match(team, round).second == false) {
+		distance = Get_Distance(Get_Match(team, round - 1).first, Get_Match(team, round).first);
+	}
+	else if (Get_Match(team, round - 1).second == false && !Get_Match(team, round).second == true) {
+		distance = Get_Distance(Get_Match(team, round - 1).first, team);
+	}
+	else if (Get_Match(team, round - 1).second == true && !Get_Match(team, round).second == false) {
+		distance = Get_Distance(team, Get_Match(team, round).first);
+	}
+	return distance;
+
+}
+
+int heuristic::distance_nachher_hinten(unsigned team, unsigned round) {
+	int distance = 0;
+	if (!Get_Match(team, round - 1).second == false && Get_Match(team, round).second == false) {
+		distance = Get_Distance(Get_Match(team, round - 1).first, Get_Match(team, round).first);
+	}
+	else if (!Get_Match(team, round - 1).second == false && Get_Match(team, round).second == true) {
+		distance = Get_Distance(Get_Match(team, round - 1).first, team);
+	}
+	else if (!Get_Match(team, round - 1).second == true && Get_Match(team, round).second == false) {
+		distance = Get_Distance(team, Get_Match(team, round).first);
+	}
+	return distance;
+
+}
+
+
+//aufgaben:
 pair<int, int> heuristic::TestSwapHA(unsigned team_i, unsigned team_j)
 {
 	int delta_cost = 0; // gain
 	int num_vio = 0; // At first only 0 for feasible and 1 for infeasible
-					 // TODO
+					 
+	//welche runden sind betroffen?:
+
+	unsigned round_k = Which_rounds(team_i, team_j).first;
+	unsigned round_l = Which_rounds(team_i, team_j).second;
+
+	//Delta costs:
+
+	//distanz_vorher = distanz_team_i(runde k-1 -> k -> k+1) + distanz_team_i(runde l-1 -> l -> l+1) + distanz_team_j(runde k-1 -> k -> k+1) + distanz_team_j(runde l-1 -> l -> l+1)
+	int distance_before = 0;
+	
+	distance_before += distance_vorher(team_i, round_k);
+	distance_before += distance_vorher(team_j, round_k);
+	distance_before += distance_vorher(team_i, round_k + 1);
+	distance_before += distance_vorher(team_j, round_k + 1);
+	distance_before += distance_vorher(team_i, round_l);
+	distance_before += distance_vorher(team_j, round_l);
+	distance_before += distance_vorher(team_i, round_l + 1);
+	distance_before += distance_vorher(team_j, round_l + 1);
+	//cout << "distance before: " << distance_before << endl;
+
+	//distanz_nachher = distanz_team_i(runde k-1 -> k -> k+1) + distanz_team_i(runde l-1 -> l -> l+1) + distanz_team_j(runde k-1 -> k -> k+1) + distanz_team_j(runde l-1 -> l -> l+1)
+	int distance_after = 0;
+
+	distance_after += distance_nachher_vorne(team_i, round_k);
+	distance_after += distance_nachher_vorne(team_j, round_k);
+	distance_after += distance_nachher_hinten(team_i, round_k + 1);
+	distance_after += distance_nachher_hinten(team_j, round_k + 1);
+	distance_after += distance_nachher_vorne(team_i, round_l);
+	distance_after += distance_nachher_vorne(team_j, round_l);
+	distance_after += distance_nachher_hinten(team_i, round_l + 1);
+	distance_after += distance_nachher_hinten(team_j, round_l + 1);
+	//cout << "distance after: " << distance_after << endl;
+
+	//delta_distanz (als verbesserung) = distanz_vorher - distanz_nachher
+	delta_cost = distance_before - distance_after;
+	//cout << "delta_costs: " << delta_cost << endl;
+
+	//num_consec_opps <= 3 weiterhin erfuellt vor und nach den 4 getauschten home/away spielen?:
+	//wenn nein -> num_vio = 1
 
 	return make_pair(delta_cost, num_vio);
 }
@@ -848,7 +935,9 @@ void heuristic::PrtSwapTms(unsigned team_i, unsigned team_j, unsigned round_k)
 int heuristic::Move_SwapHA(unsigned k)
 {
 	int gain = 0;
-	PrtSwapRds(0, 0, 4);
+	TestSwapHA(0, 1);
+	SwapHA(0, 1);
+
 
 	return gain;
 }
