@@ -24,7 +24,15 @@ void CreateStartSolution( string filename, string output )
 
 	// Hier kommt die Lokale Suche hin
 	// TODO
-	int k = 100;
+	cout << "Welches k soll fuer die k-Besten-Suche verwendet werden? Bitte eingeben: ";
+	int k = -1;
+	cin >> k;
+	while (k < 1) {
+		cout << "Ungueltige Eingabe (k < 1)! Bitte wiederholen: ";
+		cin >> k;
+	}
+	cout << "Auswahl: K = " << k << endl;
+	//int k = 100;
 	timer.Restart();
 	//heureka.Move_PrtSwapRds(k); //usw.
 	//heureka.Move_SwapHA(k);
