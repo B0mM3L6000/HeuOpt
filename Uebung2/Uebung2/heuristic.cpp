@@ -721,53 +721,367 @@ pair<int, int> heuristic::Which_rounds(unsigned team_i, unsigned team_j) {
 	return make_pair(hinrunde, rueckrunde);
 }
 
+//distanz funktionen fuer swapHA
+
+//distanz vor swap (für beide seiten nutzbar)
 int heuristic::distance_vorher(unsigned team, unsigned round) {
 	int distance = 0;
-	if (Get_Match(team, round - 1).second == false && Get_Match(team, round).second == false) {
-		distance = Get_Distance(Get_Match(team, round - 1).first, Get_Match(team, round).first);
-	}
-	else if (Get_Match(team, round - 1).second == false && Get_Match(team, round).second == true) {
-		distance =  Get_Distance(Get_Match(team, round - 1).first, team);
-	}
-	else if (Get_Match(team, round - 1).second == true && Get_Match(team, round).second == false) {
-		distance = Get_Distance(team, Get_Match(team, round).first);
+	if (round != 0 && round != u_number_rounds) {
+		if (Get_Match(team, round - 1).second == false && Get_Match(team, round).second == false) {
+			distance = Get_Distance(Get_Match(team, round - 1).first, Get_Match(team, round).first);
+		}
+		else if (Get_Match(team, round - 1).second == false && Get_Match(team, round).second == true) {
+			distance = Get_Distance(Get_Match(team, round - 1).first, team);
+		}
+		else if (Get_Match(team, round - 1).second == true && Get_Match(team, round).second == false) {
+			distance = Get_Distance(team, Get_Match(team, round).first);
+		}
 	}
 	return distance;
 
 }
 
+//distanz nach swap (links)
 int heuristic::distance_nachher_vorne(unsigned team, unsigned round) {
 	int distance = 0;
-	if (Get_Match(team, round - 1).second == false && !Get_Match(team, round).second == false) {
-		distance = Get_Distance(Get_Match(team, round - 1).first, Get_Match(team, round).first);
-	}
-	else if (Get_Match(team, round - 1).second == false && !Get_Match(team, round).second == true) {
-		distance = Get_Distance(Get_Match(team, round - 1).first, team);
-	}
-	else if (Get_Match(team, round - 1).second == true && !Get_Match(team, round).second == false) {
-		distance = Get_Distance(team, Get_Match(team, round).first);
+	if (round != 0 && round != u_number_rounds) {
+		if (Get_Match(team, round - 1).second == false && !Get_Match(team, round).second == false) {
+			distance = Get_Distance(Get_Match(team, round - 1).first, Get_Match(team, round).first);
+		}
+		else if (Get_Match(team, round - 1).second == false && !Get_Match(team, round).second == true) {
+			distance = Get_Distance(Get_Match(team, round - 1).first, team);
+		}
+		else if (Get_Match(team, round - 1).second == true && !Get_Match(team, round).second == false) {
+			distance = Get_Distance(team, Get_Match(team, round).first);
+		}
 	}
 	return distance;
 
 }
 
+
+//distanz nach swap rechts
 int heuristic::distance_nachher_hinten(unsigned team, unsigned round) {
 	int distance = 0;
-	if (!Get_Match(team, round - 1).second == false && Get_Match(team, round).second == false) {
-		distance = Get_Distance(Get_Match(team, round - 1).first, Get_Match(team, round).first);
-	}
-	else if (!Get_Match(team, round - 1).second == false && Get_Match(team, round).second == true) {
-		distance = Get_Distance(Get_Match(team, round - 1).first, team);
-	}
-	else if (!Get_Match(team, round - 1).second == true && Get_Match(team, round).second == false) {
-		distance = Get_Distance(team, Get_Match(team, round).first);
+	if (round != 0 && round != u_number_rounds) {
+		if (!Get_Match(team, round - 1).second == false && Get_Match(team, round).second == false) {
+			distance = Get_Distance(Get_Match(team, round - 1).first, Get_Match(team, round).first);
+		}
+		else if (!Get_Match(team, round - 1).second == false && Get_Match(team, round).second == true) {
+			distance = Get_Distance(Get_Match(team, round - 1).first, team);
+		}
+		else if (!Get_Match(team, round - 1).second == true && Get_Match(team, round).second == false) {
+			distance = Get_Distance(team, Get_Match(team, round).first);
+		}
 	}
 	return distance;
 
+}
+
+
+//test ob home/away max 3mal in folge für swapHA:
+bool heuristic::swapHA_homeaway_test(unsigned team, unsigned round1, unsigned round2) {
+	int counter;
+	bool currentround;
+	bool tmp;
+
+	if ((round2 - round1) == 1) { //edge case dass beide nur eins voneiander weg liegen:
+		if (round1 < 2) { //edge case links
+			counter = 1;
+			if (round1 == 0) {
+				tmp = !Get_Match(team, 0).second;
+			}
+			else {
+				tmp = Get_Match(team, 0).second;
+			}
+			for (int i = 1; i < round2 + 2; i++) {
+				if (i == round1) {
+					currentround = !Get_Match(team, round1).second;
+				}
+				else if (i == round2) {
+					currentround = !Get_Match(team, round2).second;
+				}
+				else {
+					currentround = Get_Match(team, i).second;
+				}
+				if (tmp == currentround) {
+					counter++;
+				}
+				else {
+					counter = 1;
+					tmp = currentround;
+				}
+				if (counter > 3) {
+					//cout << "Fehler in Runde " <<  i << " bei Team " << team << endl;
+					return false;
+
+				}
+			}
+		}
+
+		else if (round2 > u_number_rounds - 3) { //edge case rechts
+			counter = 1;
+			tmp = Get_Match(team, round1 - 2).second;
+			for (int i = 1; i < (u_number_rounds - round2 + 4); i++) {
+				if (i == 2) {
+					currentround = !Get_Match(team, round1).second;
+				}
+				else if (i = 4) {
+					currentround = !Get_Match(team, round2).second;
+				}
+				else {
+					currentround = Get_Match(team, round2 - 4 + i).second;
+				}
+				if (tmp == currentround) {
+					counter++;
+				}
+				else {
+					counter = 1;
+					tmp = currentround;
+				}
+				if (counter > 3) {
+					//cout << "Fehler in Runde " << round2 - 2 + i << " bei Team " << team;
+					return false;
+				}
+			}
+		}
+
+		else {
+			counter = 1;
+			tmp = Get_Match(team, round1 - 2).second;
+			for (int i = 1; i < 7; i++) {
+				if (i == 2) {
+					currentround = !Get_Match(team, round1).second;
+				}
+				else if (i = 4) {
+					currentround = !Get_Match(team, round2).second;
+				}
+				else {
+					currentround = Get_Match(team, round2 - 4 + i).second;
+				}
+				if (tmp == currentround) {
+					counter++;
+				}
+				else {
+					counter = 1;
+					tmp = currentround;
+				}
+				if (counter > 3) {
+					//cout << "Fehler in Runde " << round2 - 2 + i << " bei Team " << team;
+					return false;
+				}
+			}
+		}
+	}
+
+	else {
+		if (round1 < 2 && round2 > u_number_rounds - 3) {  //edge case beide seiten
+			counter = 1;
+			if (round1 == 0) {
+				tmp = !Get_Match(team, 0).second;
+			}
+			else {
+				tmp = Get_Match(team, 0).second;
+			}
+			for (int i = 1; i < round1 + 2; i++) {
+				if (i == round1) {
+					currentround = !Get_Match(team, round1).second;
+				}
+				else {
+					currentround = Get_Match(team, i).second;
+				}
+				if (tmp == currentround) {
+					counter++;
+				}
+				else {
+					counter = 1;
+					tmp = currentround;
+				}
+				if (counter > 3) {
+					//cout << "Fehler in Runde " <<  i << " bei Team " << team << endl;
+					return false;
+
+				}
+			}
+			counter = 1;
+			tmp = Get_Match(team, round2 - 2).second;
+			for (int i = 1; i < (u_number_rounds - round2 + 2); i++) {
+				if (i == 2) {
+					currentround = !Get_Match(team, round2 - 2 + i).second;
+				}
+				else {
+					currentround = Get_Match(team, round2 - 2 + i).second;
+				}
+				if (tmp == currentround) {
+					counter++;
+				}
+				else {
+					counter = 1;
+					tmp = currentround;
+				}
+				if (counter > 3) {
+					//cout << "Fehler in Runde " << round2 - 2 + i << " bei Team " << team;
+					return false;
+				}
+			}
+		}
+
+		else if (round1 < 2 && round2 < u_number_rounds - 2) { //edge case links
+			counter = 1;
+			if (round1 == 0) {
+				tmp = !Get_Match(team, 0).second;
+			}
+			else {
+				tmp = Get_Match(team, 0).second;
+			}
+			for (int i = 1; i < round1 + 2; i++) {
+				if (i == round1) {
+					currentround = !Get_Match(team, round1).second;
+				}
+				else {
+					currentround = Get_Match(team, i).second;
+				}
+				if (tmp == currentround) {
+					counter++;
+				}
+				else {
+					counter = 1;
+					tmp = currentround;
+				}
+				if (counter > 3) {
+					//cout << "Fehler in Runde " <<  i << " bei Team " << team << endl;
+					return false;
+
+				}
+			}
+			counter = 1;
+			tmp = Get_Match(team, round2 - 2).second;
+			for (int i = 1; i < 5; i++) {
+				if (i == 2) {
+					currentround = !Get_Match(team, round2 - 2 + i).second;
+				}
+				else {
+					currentround = Get_Match(team, round2 - 2 + i).second;
+				}
+				if (tmp == currentround) {
+					counter++;
+				}
+				else {
+					counter = 1;
+					tmp = currentround;
+				}
+				if (counter > 3) {
+					//cout << "Fehler in Runde " << round2 - 2 + i << " bei Team " << team;
+					return false;
+				}
+			}
+
+		}
+		else if (round1 > 1 && round2 > u_number_rounds - 3) { //edge case rechts
+			counter = 1;
+			tmp = Get_Match(team, round1 - 2).second;
+			for (int i = 1; i < 5; i++) {
+				if (i == 2) {
+					currentround = !Get_Match(team, round1 - 2 + i).second;
+				}
+				else {
+					currentround = Get_Match(team, round1 - 2 + i).second;
+				}
+				if (tmp == currentround) {
+					counter++;
+				}
+				else {
+					counter = 1;
+					tmp = currentround;
+				}
+				if (counter > 3) {
+					//cout << "Fehler in Runde " << round1 - 2 + i << " bei Team " << team << endl;
+					return false;
+
+				}
+			}
+			counter = 1;
+			tmp = Get_Match(team, round2 - 2).second;
+			for (int i = 1; i < (u_number_rounds - round2 + 2); i++) {
+				if (i == 2) {
+					currentround = !Get_Match(team, round2 - 2 + i).second;
+				}
+				else {
+					currentround = Get_Match(team, round2 - 2 + i).second;
+				}
+				if (tmp == currentround) {
+					counter++;
+				}
+				else {
+					counter = 1;
+					tmp = currentround;
+				}
+				if (counter > 3) {
+					//cout << "Fehler in Runde " << round2 - 2 + i << " bei Team " << team;
+					return false;
+				}
+			}
+		}
+
+		else { //kein edge case
+			counter = 1;
+			tmp = Get_Match(team, round1 - 2).second;
+			for (int i = 1; i < 5; i++) {
+				//cout << "Runde: " << round1 - 2 +i << " Counter: " << counter << " Tmp (letzte Runde): " << tmp << endl;
+				if (i == 2) {
+					currentround = !Get_Match(team, round1 - 2 + i).second;
+					//cout << "Current Round home oder away (Runde in der geswapped wird): " << currentround << endl;
+				}
+				else {
+					currentround = Get_Match(team, round1 - 2 + i).second;
+					//cout << "Current Round home oder away (Runde vor oder nach geswappter Runde): " << currentround << endl;
+				}
+				if (tmp == currentround) {
+					counter++;
+					//cout << "selbes Home away. Neuer Counter: " << counter << endl;
+				}
+				else {
+					counter = 1;
+					tmp = currentround;
+					//cout << "Anderes Home away. Neuer Counter: " << counter << " neues tmp: " << tmp << endl;
+				}
+				if (counter > 3) {
+					//cout << "Fehler in Runde " << round1 - 2 + i << " bei Team " << team << endl;
+					return false;
+
+				}
+			}
+			counter = 1;
+			tmp = Get_Match(team, round2 - 2).second;
+			for (int i = 1; i < 5; i++) {
+				if (i == 2) {
+					currentround = !Get_Match(team, round2 - 2 + i).second;
+				}
+				else {
+					currentround = Get_Match(team, round2 - 2 + i).second;
+				}
+				if (tmp == currentround) {
+					counter++;
+				}
+				else {
+					counter = 1;
+					tmp = currentround;
+				}
+				if (counter > 3) {
+					//cout << "Fehler in Runde " << round2 - 2 + i << " bei Team " << team;
+					return false;
+				}
+			}
+		}
+	}
+
+	return true;
 }
 
 
 //aufgaben:
+
+
 pair<int, int> heuristic::TestSwapHA(unsigned team_i, unsigned team_j)
 {
 	int delta_cost = 0; // gain
@@ -810,8 +1124,17 @@ pair<int, int> heuristic::TestSwapHA(unsigned team_i, unsigned team_j)
 	delta_cost = distance_before - distance_after;
 	//cout << "delta_costs: " << delta_cost << endl;
 
-	//num_consec_opps <= 3 weiterhin erfuellt vor und nach den 4 getauschten home/away spielen?:
+	//anzahl aufeinanderfolgender home/away <= 3 weiterhin erfuellt vor und nach den 4 getauschten home/away spielen?:
 	//wenn nein -> num_vio = 1
+	bool test;
+	test = swapHA_homeaway_test(team_i, round_k, round_l);
+	if (test) {
+		test = swapHA_homeaway_test(team_j, round_k, round_l);
+	}
+
+	if (!test) {
+		num_vio = 1;
+	}
 
 	return make_pair(delta_cost, num_vio);
 }
@@ -935,9 +1258,34 @@ void heuristic::PrtSwapTms(unsigned team_i, unsigned team_j, unsigned round_k)
 int heuristic::Move_SwapHA(unsigned k)
 {
 	int gain = 0;
-	TestSwapHA(0, 1);
-	SwapHA(0, 1);
+	int better_count = 0;
+	pair <unsigned, unsigned> current_best;
+	//TestSwapHA(0, 3);
+	//SwapHA(0, 3);
+	for (unsigned a = 0; a < u_number_teams; a++) {
+		for (unsigned b = a + 1; b < u_number_teams; b++) {
+			if (TestSwapHA(a, b).first >= gain && TestSwapHA(a, b).second == 0) {
+				gain = TestSwapHA(a, b).first;
+				current_best = make_pair(a, b);
+				better_count++;
+				if (better_count == k) {
+					break;
+				}
+			}
+		}
+		if (better_count == k) {
+			break;
+		}
+	}
+	
 
+	if (better_count > 0) {
+		SwapHA(current_best.first, current_best.second);
+		cout << "SwapHA Schritt mit Team " << current_best.first << " und Team " << current_best.second << " durchgefuehrt. Dabei wurde eine Verbesserung von " << gain << " erreicht." << endl;
+	}
+	else {
+		cout << "Lokales Optima erreicht." << endl;
+	}
 
 	return gain;
 }

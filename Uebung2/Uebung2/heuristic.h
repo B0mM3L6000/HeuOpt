@@ -105,11 +105,15 @@ public:
 
 	//martins hilfsfunktionen:
 
-	//welches team spielt gegen welches?
+	//welches runden sind die paarungen?
 	pair<int, int> Which_rounds(unsigned team_i, unsigned team_j);
+	//distanzen bei swapHA:
 	int distance_vorher(unsigned team_i, unsigned round);
 	int distance_nachher_vorne(unsigned team_i, unsigned round);
 	int distance_nachher_hinten(unsigned team_i, unsigned round);
+	//homeawaytest bei swapHA
+	bool swapHA_homeaway_test(unsigned team, unsigned round1, unsigned round2);
+
 };
 
 #endif /* HEURISTIC_H_ */
