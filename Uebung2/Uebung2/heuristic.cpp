@@ -1161,7 +1161,45 @@ pair<int, int> heuristic::TestSwapRds(unsigned round_k, unsigned round_l)
 {
 	int delta_cost = 0; // gain
 	int num_vio = 0; // At first only 0 for feasible and 1 for infeasible
-					 // TODO
+
+	int distance_before = 0;
+	int distance_after = 0;
+
+	//Delta costs:
+
+	//Kosten vorher unterschieden  in 2 Cases: runden sind direkt nacheinander oder nicht:
+	if (round_k + 1 == round_l) { //direkt nacheinander
+		for (unsigned i = 0; i < u_number_teams; i++) {
+			distance_before += distance_vorher(i, round_k);
+			distance_before += distance_vorher(i, round_l);
+			distance_before += distance_vorher(i, round_l + 1);
+		}
+	}
+	else { //min eine runde abstand zwischen den runden:
+		for (unsigned i = 0; i < u_number_teams; i++) {
+			distance_before += distance_vorher(i, round_k);
+			distance_before += distance_vorher(i, round_k+1);
+			distance_before += distance_vorher(i, round_l);
+			distance_before += distance_vorher(i, round_l+1);
+		}
+	}
+
+	//delta_distanz (als verbesserung) = distanz_vorher - distanz_nachher
+	delta_cost = distance_before - distance_after;
+	//cout << "delta_costs: " << delta_cost << endl;
+
+	//check ob valide:
+	bool test = true;
+
+	//home/away check:
+	//TO DO
+
+	//Norepeater check:
+	//TO DO
+
+	if (!test) {
+		num_vio = 1;
+	}
 
 	return make_pair(delta_cost, num_vio);
 }
@@ -1260,12 +1298,12 @@ int heuristic::Move_SwapHA(unsigned k)
 	int gain = 0;
 	int better_count = 0;
 	pair <unsigned, unsigned> current_best;
-	//TestSwapHA(0, 3);
-	//SwapHA(0, 3);
+	pair <int, int> tmp_forspeed;
 	for (unsigned a = 0; a < u_number_teams; a++) {
 		for (unsigned b = a + 1; b < u_number_teams; b++) {
-			if (TestSwapHA(a, b).first >= gain && TestSwapHA(a, b).second == 0) {
-				gain = TestSwapHA(a, b).first;
+			tmp_forspeed = TestSwapHA(a,b);
+			if (tmp_forspeed.first >= gain && tmp_forspeed.second == 0) {
+				gain = tmp_forspeed.first;
 				current_best = make_pair(a, b);
 				better_count++;
 				if (better_count == k) {
@@ -1293,7 +1331,34 @@ int heuristic::Move_SwapHA(unsigned k)
 int heuristic::Move_SwapRds(unsigned k)
 {
 	int gain = 0;
-	// TODO
+	int better_count = 0;
+	pair <unsigned, unsigned> current_best;
+	pair <int, int> tmp_forspeed;
+	for (unsigned a = 0; a < u_number_rounds; a++) {
+		for (unsigned b = a + 1; b < u_number_rounds; b++) {
+			tmp_forspeed = TestSwapRds(a, b);
+			if (tmp_forspeed.first >= gain && tmp_forspeed.second == 0) {
+				gain = tmp_forspeed.first;
+				current_best = make_pair(a, b);
+				better_count++;
+				if (better_count == k) {
+					break;
+				}
+			}
+		}
+		if (better_count == k) {
+			break;
+		}
+	}
+
+
+	if (better_count > 0) {
+		SwapRds(current_best.first, current_best.second);
+		cout << "SwapRds Schritt mit Runde " << current_best.first << " und Runde " << current_best.second << " durchgefuehrt. Dabei wurde eine Verbesserung von " << gain << " erreicht." << endl;
+	}
+	else {
+		cout << "Lokales Optima erreicht." << endl;
+	}
 
 	return gain;
 }
@@ -1301,7 +1366,34 @@ int heuristic::Move_SwapRds(unsigned k)
 int heuristic::Move_SwapTms(unsigned k)
 {
 	int gain = 0;
-	// TODO
+	int better_count = 0;
+	pair <unsigned, unsigned> current_best;
+	pair <int, int> tmp_forspeed;
+	for (unsigned a = 0; a < u_number_teams; a++) {
+		for (unsigned b = a + 1; b < u_number_teams; b++) {
+			tmp_forspeed = TestSwapTms(a, b);
+			if (tmp_forspeed.first >= gain && tmp_forspeed.second == 0) {
+				gain = tmp_forspeed.first;
+				current_best = make_pair(a, b);
+				better_count++;
+				if (better_count == k) {
+					break;
+				}
+			}
+		}
+		if (better_count == k) {
+			break;
+		}
+	}
+
+
+	if (better_count > 0) {
+		SwapTms(current_best.first, current_best.second);
+		cout << "SwapTms Schritt mit Team " << current_best.first << " und Team " << current_best.second << " durchgefuehrt. Dabei wurde eine Verbesserung von " << gain << " erreicht." << endl;
+	}
+	else {
+		cout << "Lokales Optima erreicht." << endl;
+	}
 
 	return gain;
 }
