@@ -26,7 +26,7 @@ void CreateStartSolution( string filename, string output )
 	// TODO
 	int k = 100;
 	timer.Restart();
-	heureka.Move_SwapHA(k); //usw.
+	heureka.Move_PrtSwapRds(k); //usw.
 	timer.Stop();
 
 	heureka.Print_Schedule(true);

@@ -107,10 +107,14 @@ public:
 
 	//welches runden sind die paarungen?
 	pair<int, int> Which_rounds(unsigned team_i, unsigned team_j);
-	//distanzen bei swapHA:
+	//distanzen vor swap:
 	int distance_vorher(unsigned team_i, unsigned round);
+	//distanzen nach swap HA:
 	int distance_nachher_vorne(unsigned team_i, unsigned round);
 	int distance_nachher_hinten(unsigned team_i, unsigned round);
+	//distanzen nach swap RNDS:
+	int distance_nachher_vorne2(unsigned team_i, unsigned round, unsigned swappedround);
+	int distance_nachher_hinten2(unsigned team_i, unsigned round, unsigned swappedround);
 	//homeawaytest bei swapHA
 	bool swapHA_homeaway_test(unsigned team, unsigned round1, unsigned round2);
 
