@@ -117,6 +117,8 @@ public:
 	int distance_nachher_hinten2(unsigned team_i, unsigned round, unsigned swappedround);
 	//homeawaytest bei swapHA
 	bool swapHA_homeaway_test(unsigned team, unsigned round1, unsigned round2);
+	//norepeater check:
+	bool norepeater(unsigned team, unsigned round1, unsigned round2);
 
 };
 

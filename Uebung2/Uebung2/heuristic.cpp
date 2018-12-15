@@ -1113,6 +1113,15 @@ bool heuristic::swapHA_homeaway_test(unsigned team, unsigned round1, unsigned ro
 	return true;
 }
 
+//norepeater check:
+bool heuristic::norepeater(unsigned team, unsigned round1, unsigned round2) {
+	if (Get_Match(team, round1).first == Get_Match(team, round2).first) {
+		//cout << "No Repeater Verletzung bei Team " << team << " in den Runden " << round1 << " und " << round2 << endl;
+		return false;
+	}
+	return true;
+}
+
 
 //aufgaben:
 
@@ -1238,7 +1247,40 @@ pair<int, int> heuristic::TestSwapRds(unsigned round_k, unsigned round_l)
 	//TO DO
 
 	//Norepeater check:
-	//TO DO
+	//2 cases: runden direkt nacheinander oder min. eine runde abstand:
+	if (round_k + 1 == round_l) {//nacheinander
+		for (unsigned i = 0; i < u_number_teams; i++) {
+			if (!norepeater(i, round_k - 1, round_l)) {
+				test = false;
+				break;
+			}
+			if (!norepeater(i, round_k, round_l + 1)) {
+				test = false;
+				break;
+			}
+		}
+	}
+	else {//mit abstand
+		for (unsigned i = 0; i < u_number_teams; i++) {
+			//cout << "DEBUGGING! i = " << i << " mit Runde_k = " << round_k << " und Runde_l = " << round_l << endl;
+			if (!norepeater(i, round_k - 1, round_l)) {
+				test = false;
+				break;
+			}
+			if (!norepeater(i, round_l, round_k + 1)) {
+				test = false;
+				break;
+			}
+			if (!norepeater(i, round_l - 1, round_k)) {
+				test = false;
+				break;
+			}
+			if (!norepeater(i, round_k, round_l + 1)) {
+				test = false;
+				break;
+			}
+		}
+	}
 
 	if (!test) {
 		num_vio = 1;
