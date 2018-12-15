@@ -48,7 +48,9 @@ void main()
 		"instances/circ10",
 		"instances/circ12",
 		"instances/circ14",
-		"instances/circ16" };
+		"instances/circ16",
+		"instances/circ18",
+		"instances/circ20" };
 
 	const char** filenames;
 	int instance_idx1 = -1;
@@ -74,7 +76,7 @@ void main()
 	switch (selected_set)
 	{
 	case 0: // GDB
-		max_inst = 6;
+		max_inst = 9;
 		filenames = circ_files;
 		break;
 	}

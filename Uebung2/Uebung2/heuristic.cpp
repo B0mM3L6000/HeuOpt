@@ -813,6 +813,24 @@ int heuristic::distance_nachher_hinten2(unsigned team, unsigned round, unsigned 
 
 }
 
+//distanz nach swap mitte RNDS
+int heuristic::distance_nachher_mitte(unsigned team, unsigned round, unsigned swappedround) {
+	int distance = 0;
+	if (round != 0 && round != u_number_rounds) {
+		if (Get_Match(team, swappedround).second == false && Get_Match(team, round).second == false) {
+			distance = Get_Distance(Get_Match(team, swappedround).first, Get_Match(team, round).first);
+		}
+		else if (Get_Match(team, swappedround).second == false && Get_Match(team, round).second == true) {
+			distance = Get_Distance(Get_Match(team, swappedround).first, team);
+		}
+		else if (Get_Match(team, swappedround).second == true && Get_Match(team, round).second == false) {
+			distance = Get_Distance(team, Get_Match(team, round).first);
+		}
+	}
+	return distance;
+
+}
+
 
 //test ob home/away max 3mal in folge für swapHA:
 bool heuristic::swapHA_homeaway_test(unsigned team, unsigned round1, unsigned round2) {
@@ -1246,10 +1264,11 @@ pair<int, int> heuristic::TestSwapRds(unsigned round_k, unsigned round_l)
 	if (round_k + 1 == round_l) { //direkt nacheinander
 		for (unsigned i = 0; i < u_number_teams; i++) {
 			distance_before += distance_vorher(i, round_k);
-			distance_before += distance_vorher(i, round_l);
+			//distance_before += distance_vorher(i, round_l);
 			distance_before += distance_vorher(i, round_l + 1);
 
 			distance_after += distance_nachher_vorne2(i, round_k, round_l);
+			//distance_after += distance_nachher_mitte(i, round_l, round_k);
 			distance_after += distance_nachher_hinten2(i, round_l + 1, round_k);
 		}
 	}
@@ -1269,7 +1288,7 @@ pair<int, int> heuristic::TestSwapRds(unsigned round_k, unsigned round_l)
 
 	//delta_distanz (als verbesserung) = distanz_vorher - distanz_nachher
 	delta_cost = distance_before - distance_after;
-	//cout << "delta_costs: " << delta_cost << endl;
+	cout << "delta_costs: " << delta_cost << endl;
 
 	//check ob valide:
 	bool test = true;
@@ -1336,7 +1355,7 @@ pair<int, int> heuristic::TestSwapRds(unsigned round_k, unsigned round_l)
 
 	if (!test) {
 		num_vio = 1;
-		//cout << "not valid tho" << endl;
+		cout << "not valid tho" << endl;
 	}
 
 	return make_pair(delta_cost, num_vio);
@@ -1474,6 +1493,7 @@ int heuristic::Move_SwapRds(unsigned k)
 	pair <int, int> tmp_forspeed;
 	for (unsigned a = 0; a < u_number_rounds; a++) {
 		for (unsigned b = a + 1; b < u_number_rounds; b++) {
+			cout << "Paar: " << a << ", " << b << endl;
 			tmp_forspeed = TestSwapRds(a, b);
 			if (tmp_forspeed.first >= gain && tmp_forspeed.second == 0) {
 				gain = tmp_forspeed.first;
@@ -1541,8 +1561,8 @@ int heuristic::Move_PrtSwapRds(unsigned k)
 	int gain = 0;
 	// TODO
 
-	TestSwapRds(3, 7);
-	SwapRds(1, 3);
+	//TestSwapRds(3, 7);
+	SwapRds(4, 5);
 	return gain;
 }
 
