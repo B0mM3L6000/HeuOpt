@@ -1476,7 +1476,74 @@ pair<int, int> heuristic::TestSwapTms(unsigned team_i, unsigned team_j)
 	if (num_vio != 1) {
 		//distanz berechnen
 
+		distance_before = Calculate_Distance();
 
+		int prev_team;
+		int cur_team;
+
+		for (int i = 0; i < u_number_teams; i++) {
+			prev_team = i;
+			if (i == team_i) {
+				for (int j = 0; j < u_number_rounds; j++) {
+					if (reihe_i[j].second == true) {
+						distance_after += Get_Distance(prev_team, i);
+						prev_team = i;
+					}
+					else {
+						distance_after += Get_Distance(prev_team, reihe_i[j].first);
+						prev_team = reihe_i[j].first;
+					}
+				}
+			}
+			else if (i == team_j) {
+				for (int j = 0; j < u_number_rounds; j++) {
+					if (reihe_j[j].second == true) {
+						distance_after += Get_Distance(prev_team, i);
+						prev_team = i;
+					}
+					else {
+						distance_after += Get_Distance(prev_team, reihe_j[j].first);
+						prev_team = reihe_j[j].first;
+					}
+				}
+			}
+			else {
+				for (int j = 0; j < u_number_rounds; j++) {
+					if (Get_Match(i, j).first == team_i) {
+						if (Get_Match(i, j).second == true) {
+							distance_after += Get_Distance(prev_team, i);
+							prev_team = i;
+						}
+						else {
+							distance_after += Get_Distance(prev_team, team_j);
+							prev_team = team_j;
+						}
+					}
+					else if (Get_Match(i, j).first == team_j) {
+						if (Get_Match(i, j).second == true) {
+							distance_after += Get_Distance(prev_team, i);
+							prev_team = i;
+						}
+						else {
+							distance_after += Get_Distance(prev_team, team_i);
+							prev_team = team_i;
+						}
+					}
+					else {
+						if (Get_Match(i, j).second == true) {
+							distance_after += Get_Distance(prev_team, i);
+							prev_team = i;
+						}
+						else {
+							distance_after += Get_Distance(prev_team, Get_Match(i,j).first);
+							prev_team = Get_Match(i, j).first;
+						}
+					}
+				}
+			}
+			distance_after += Get_Distance(prev_team, i);
+
+		}
 
 
 		delta_cost = distance_before - distance_after;
@@ -2012,8 +2079,8 @@ int heuristic::Move_PrtSwapRds(unsigned k)
 int heuristic::Move_PrtSwapTms(unsigned k)
 {
 	int gain = 0;
-	TestPrtSwapTms(0,3,2);
-	PrtSwapTms(0,3,2);
+	TestSwapTms(0,3);
+	SwapTms(0,3);
 
 	return gain;
 }
