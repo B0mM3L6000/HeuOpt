@@ -1446,7 +1446,6 @@ pair<int, int> heuristic::TestPrtSwapRds(unsigned team_i, unsigned round_k, unsi
 
 
 	////////////////////////////////////////welche teams sind betroffen:
-	//To DO
 	unsigned tmp_row = team_i;
 	vector <unsigned> used_teams;
 	for (unsigned i = 0; i < u_number_teams; i++) {
@@ -1600,7 +1599,45 @@ pair<int, int> heuristic::TestPrtSwapTms(unsigned team_i, unsigned team_j, unsig
 
 void heuristic::PrtSwapTms(unsigned team_i, unsigned team_j, unsigned round_k)
 {
-	// TODO
+	unsigned tmp_round = round_k;
+	bool validplan = false;
+
+	for (unsigned i = 0; i < u_number_rounds; i++) {
+		pair<unsigned, bool> tmp_i = Get_Match(team_i, tmp_round);
+
+		//spielen teams gegeneinander in der runde? wenn nein dann:
+		if (tmp_i.first != team_j) {
+			pair<unsigned, bool> tmp_j = Get_Match(team_j, tmp_round);
+
+			//tauschen der matchups:
+			//Team_i:
+
+			Set_Match(team_i, tmp_round, tmp_j.first, tmp_j.second);
+			Set_Match(tmp_j.first, tmp_round, team_i, !tmp_j.second);
+
+			//Team_j:
+
+			Set_Match(team_j, tmp_round, tmp_i.first, tmp_i.second);
+			Set_Match(tmp_i.first, tmp_round, team_j, !tmp_i.second);
+
+		}
+
+		//check ob spielplan stimmt?:
+		for (unsigned j = 0; j < u_number_rounds; j++) {
+			if (j != tmp_round) {
+				if (Get_Match(team_i, j) == Get_Match(team_i, tmp_round)) {
+					tmp_round = j;
+					break;
+				}
+			}
+			if (j == u_number_rounds - 1) {
+				validplan = true;
+			}
+		}
+		if (validplan == true) {
+			break;
+		}
+	}
 }
 
 int heuristic::Move_SwapHA(unsigned k)
@@ -1755,7 +1792,7 @@ int heuristic::Move_PrtSwapRds(unsigned k)
 int heuristic::Move_PrtSwapTms(unsigned k)
 {
 	int gain = 0;
-	// TODO
+	PrtSwapTms(1, 3, 4);
 
 	return gain;
 }
