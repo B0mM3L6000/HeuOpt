@@ -862,6 +862,7 @@ int heuristic::distance_nachher_mitte(unsigned team, unsigned round, unsigned sw
 }
 
 
+
 //test ob home/away max 3mal in folge für swapHA:
 bool heuristic::swapHA_homeaway_test(unsigned team, unsigned round1, unsigned round2) {
 	int counter;
@@ -1375,8 +1376,8 @@ pair<int, int> heuristic::TestSwapRds(unsigned round_k, unsigned round_l)
 			if (round_l != u_number_rounds - 1) {
 				for (unsigned i = 0; i < u_number_teams; i++) {
 					if (!norepeater(i, round_k, round_l + 1)) {
-						test = false;
-						break;
+test = false;
+break;
 					}
 				}
 			}
@@ -1407,7 +1408,81 @@ pair<int, int> heuristic::TestSwapTms(unsigned team_i, unsigned team_j)
 {
 	int delta_cost = 0; // gain
 	int num_vio = 0; // At first only 0 for feasible and 1 for infeasible
-					 // TODO
+	int distance_before = 0;
+	int distance_after = 0;
+	//valid?:
+	
+	vector <pair<int, bool>> reihe_i;
+	vector <pair<int, bool>> reihe_j;
+
+	for (int i = 0; i < u_number_rounds; i++) {
+		if (Get_Match(team_i, i).first == team_j) {
+			reihe_i.push_back(Get_Match(team_i, i));
+			reihe_j.push_back(Get_Match(team_j, i));
+		}
+		else {
+			reihe_i.push_back(Get_Match(team_j, i));
+			reihe_j.push_back(Get_Match(team_i, i));
+		}
+	}
+
+	int consec = 1;
+	for (int i = 1; i < reihe_i.size();i++) {
+		if (reihe_i[i].second == reihe_i[i - 1].second) {
+			consec++;
+		}
+		else {
+			consec = 1;
+		}
+		if (consec == 4) {
+			num_vio = 1;
+			break;
+		}
+	}
+	consec = 1;
+	if (num_vio != 1) {
+		for (int i = 1; i < reihe_j.size(); i++) {
+			if (reihe_j[i].second == reihe_j[i - 1].second) {
+				consec++;
+			}
+			else {
+				consec = 1;
+			}
+			if (consec == 4) {
+				num_vio = 1;
+				break;
+			}
+		}
+	}
+
+	//check repeater
+	if (num_vio != 1) {
+		for (int i = 1; i < reihe_j.size(); i++) {
+			if (reihe_j[i].first == reihe_j[i - 1].first) {
+				num_vio = 1;
+				break;
+			}
+		}
+	}
+	if (num_vio != 1) {
+		for (int i = 1; i < reihe_i.size(); i++) {
+			if (reihe_i[i].first == reihe_i[i - 1].first) {
+				num_vio = 1;
+				break;
+			}
+		}
+	}
+
+	if (num_vio != 1) {
+		//distanz berechnen
+
+
+
+
+		delta_cost = distance_before - distance_after;
+		cout << "Delta costs: " << delta_cost << endl;
+	}
+
 
 	return make_pair(delta_cost, num_vio);
 }
@@ -1592,7 +1667,143 @@ pair<int, int> heuristic::TestPrtSwapTms(unsigned team_i, unsigned team_j, unsig
 {
 	int delta_cost = 0; // gain
 	int num_vio = 0; // At first only 0 for feasible and 1 for infeasible
-					 // TODO
+	int distance_before = 0;
+	int distance_after = 0;
+	
+	//valid?:
+
+	vector <pair<pair<int, bool>, int>> reihe_i;
+	vector <pair<pair<int, bool>, int>> reihe_j;
+
+
+	unsigned tmp_round = round_k;
+	bool validplan = false;
+
+	for (unsigned i = 0; i < u_number_rounds; i++) {
+
+		//spielen teams gegeneinander in der runde? wenn nein dann:
+		if (Get_Match(team_i, tmp_round).first != team_j) {
+			//Team_i:
+
+			reihe_i.push_back(make_pair(Get_Match(team_j, tmp_round),tmp_round));
+
+			//Team_j:
+
+			reihe_j.push_back(make_pair(Get_Match(team_i, tmp_round),tmp_round));
+
+		}
+
+		//check ob spielplan stimmt?:
+		for (unsigned j = 0; j < u_number_rounds; j++) {
+			if (j != tmp_round) {
+				if (Get_Match(team_i, j) == Get_Match(team_j, tmp_round)) {
+					tmp_round = j;
+					break;
+				}
+			}
+			if (j == u_number_rounds - 1) {
+				validplan = true;
+				break;
+			}
+		}
+		if (validplan == true) {
+			break;
+		}
+		if (tmp_round == round_k) {
+			break;
+		}
+	}
+
+	/*
+	for (int i = 0; i < reihe_i.size(); i++) {
+		cout << "Team: " << reihe_i[i].first.first << " home(1)/away(0): " << reihe_i[i].first.second << " In Runde: " << reihe_i[i].second << endl;
+	}
+	*/
+
+	vector <pair<int, bool>>reihe_i_test;
+	vector <pair<int, bool>>reihe_j_test;
+	bool doneallready;
+	
+	for (int i = 0; i < u_number_rounds; i++) {
+		doneallready = false;
+		for (int n = 0; n < reihe_i.size(); n++) {
+			if (reihe_i[n].second == i) {
+				reihe_i_test.push_back(reihe_i[n].first);
+				reihe_j_test.push_back(reihe_j[n].first);
+				doneallready = true;
+				break;
+			}
+		}
+		if (!doneallready) {
+			reihe_i_test.push_back(Get_Match(team_i, i));
+			reihe_j_test.push_back(Get_Match(team_j, i));
+		}
+
+	}
+	/*
+	for (int i = 0; i < reihe_i_test.size(); i++) {
+		cout << "Team: " << reihe_i_test[i].first << " Home(1)/Away(0): " << reihe_i_test[i].second << endl;
+	}
+	*/
+
+	//testen auf consecs:
+	int consec = 1;
+	for (int i = 1; i < reihe_i_test.size(); i++) {
+		if (reihe_i_test[i].second == reihe_i_test[i - 1].second) {
+			consec++;
+		}
+		else {
+			consec = 1;
+		}
+		if (consec == 4) {
+			num_vio = 1;
+			break;
+		}
+	}
+	consec = 1;
+	if (num_vio != 1) {
+		for (int i = 1; i < reihe_j_test.size(); i++) {
+			if (reihe_j_test[i].second == reihe_j_test[i - 1].second) {
+				consec++;
+			}
+			else {
+				consec = 1;
+			}
+			if (consec == 4) {
+				num_vio = 1;
+				break;
+			}
+		}
+	}
+
+	//check repeater
+	if (num_vio != 1) {
+		for (int i = 1; i < reihe_j_test.size(); i++) {
+			if (reihe_j_test[i].first == reihe_j_test[i - 1].first) {
+				num_vio = 1;
+				break;
+			}
+		}
+	}
+	if (num_vio != 1) {
+		for (int i = 1; i < reihe_i_test.size(); i++) {
+			if (reihe_i_test[i].first == reihe_i_test[i - 1].first) {
+				num_vio = 1;
+				break;
+			}
+		}
+	}
+
+	if (num_vio != 1) {
+		//distanz berechnen
+
+
+
+
+		delta_cost = distance_before - distance_after;
+		cout << "Delta costs: " << delta_cost << endl;
+	}
+
 
 	return make_pair(delta_cost, num_vio);
 }
@@ -1632,6 +1843,7 @@ void heuristic::PrtSwapTms(unsigned team_i, unsigned team_j, unsigned round_k)
 			}
 			if (j == u_number_rounds - 1) {
 				validplan = true;
+				break;
 			}
 		}
 		if (validplan == true) {
@@ -1800,7 +2012,8 @@ int heuristic::Move_PrtSwapRds(unsigned k)
 int heuristic::Move_PrtSwapTms(unsigned k)
 {
 	int gain = 0;
-	PrtSwapTms(1, 3, 4);
+	TestPrtSwapTms(0,3,2);
+	PrtSwapTms(0,3,2);
 
 	return gain;
 }
