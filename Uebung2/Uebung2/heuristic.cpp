@@ -1713,21 +1713,41 @@ int heuristic::Move_PrtSwapRds(unsigned k)
 {
 	int gain = 0;
 	int better_count = 0;
-	pair <unsigned, unsigned> current_best;
+	pair <unsigned, unsigned> current_best_rounds;
+	unsigned current_best_team;
 	pair <int, int> tmp_forspeed;
-	
-	// TODO
-	unsigned team_i = 1;
-	unsigned round_k = 1;
-	unsigned round_l = 6;
+	for (unsigned c = 0; c < u_number_teams; c++) {
+		for (unsigned a = 0; a < u_number_rounds; a++) {
+			for (unsigned b = a + 1; b < u_number_rounds; b++) {
+				//cout << "Paar: " << a << ", " << b << endl;
+				tmp_forspeed = TestPrtSwapRds(c, a, b);
+				if (tmp_forspeed.first >= gain && tmp_forspeed.second == 0) {
+					gain = tmp_forspeed.first;
+					current_best_rounds = make_pair(a, b);
+					current_best_team = c;
+					better_count++;
+					if (better_count == k) {
+						break;
+					}
+				}
+			}
+			if (better_count == k) {
+				break;
+			}
+		}
+		if (better_count == k) {
+			break;
+		}
+	}
 
 
-
-	tmp_forspeed = TestPrtSwapRds(team_i, round_k, round_l);
-
-	cout << "Distanz: " << tmp_forspeed.first << " und num_vio: " << tmp_forspeed.second << endl;
-
-	PrtSwapRds(team_i, round_k, round_l);
+	if (better_count > 0) {
+		PrtSwapRds(current_best_team, current_best_rounds.first, current_best_rounds.second);
+		cout << "PrtSwapRds Schritt bei Team " << current_best_team << " in Runde " << current_best_rounds.first << " und Runde " << current_best_rounds.second << " durchgefuehrt. Dabei wurde eine Verbesserung von " << gain << " erreicht." << endl;
+	}
+	else {
+		cout << "Lokales Optima erreicht." << endl;
+	}
 
 	return gain;
 }
