@@ -1440,7 +1440,130 @@ pair<int, int> heuristic::TestPrtSwapRds(unsigned team_i, unsigned round_k, unsi
 {
 	int delta_cost = 0; // gain
 	int num_vio = 0; // At first only 0 for feasible and 1 for infeasible
-					 // TODO
+
+	int distance_before = 0;
+	int distance_after = 0;
+
+
+	////////////////////////////////////////welche teams sind betroffen:
+	//To DO
+	unsigned tmp_row = team_i;
+	vector <unsigned> used_teams;
+	for (unsigned i = 0; i < u_number_teams; i++) {
+		used_teams.push_back(tmp_row);
+		if (i % 2 == 0) {
+			tmp_row = Get_Match(tmp_row, round_l).first;
+		}
+		else {
+			tmp_row = Get_Match(tmp_row, round_k).first;
+		}
+		if (tmp_row == team_i) {
+			break;
+		}
+
+	}
+	///////////////////////////////////////////////////////////////////////
+
+
+	//Delta costs:
+
+	//Kosten vorher unterschieden  in 2 Cases: runden sind direkt nacheinander oder nicht:
+	if (round_k + 1 == round_l) { //direkt nacheinander
+		for (unsigned i : used_teams) { 
+			distance_before += distance_vorher(i, round_k);
+			//distance_before += distance_vorher(i, round_l);
+			distance_before += distance_vorher(i, round_l + 1);
+
+			distance_after += distance_nachher_vorne2(i, round_k, round_l);
+			//distance_after += distance_nachher_mitte(i, round_l, round_k);
+			distance_after += distance_nachher_hinten2(i, round_l + 1, round_k);
+		}
+	}
+	else { //min eine runde abstand zwischen den runden:
+		for (unsigned i : used_teams) { 
+			distance_before += distance_vorher(i, round_k);
+			distance_before += distance_vorher(i, round_k + 1);
+			distance_before += distance_vorher(i, round_l);
+			distance_before += distance_vorher(i, round_l + 1);
+
+			distance_after += distance_nachher_vorne2(i, round_k, round_l);
+			distance_after += distance_nachher_hinten2(i, round_k + 1, round_l);
+			distance_after += distance_nachher_vorne2(i, round_l, round_k);
+			distance_after += distance_nachher_hinten2(i, round_l + 1, round_k);
+		}
+	}
+
+	//delta_distanz (als verbesserung) = distanz_vorher - distanz_nachher
+	delta_cost = distance_before - distance_after;
+	//cout << "delta_costs: " << delta_cost << endl;
+
+	//check ob valide:
+	bool test = true;
+
+	//home/away check:
+	for (unsigned i : used_teams) { 
+		test = swapHA_homeaway_test(i, round_k, round_l);
+		if (!test) {
+			break;
+		}
+	}
+
+	//Norepeater check:
+	//2 cases: runden direkt nacheinander oder min. eine runde abstand:
+	if (test) {
+		if (round_k + 1 == round_l) {//nacheinander
+			if (round_k != 0) {
+				for (unsigned i : used_teams) { 
+					if (!norepeater(i, round_k - 1, round_l)) {
+						test = false;
+						break;
+					}
+				}
+			}
+			if (round_l != u_number_rounds - 1) {
+				for (unsigned i : used_teams) {
+					if (!norepeater(i, round_k, round_l + 1)) {
+						test = false;
+						break;
+					}
+				}
+			}
+		}
+		else {//mit abstand
+			if (round_k != 0) {
+				for (unsigned i : used_teams) { 
+					//cout << "DEBUGGING! i = " << i << " mit Runde_k = " << round_k << " und Runde_l = " << round_l << endl;
+					if (!norepeater(i, round_k - 1, round_l)) {
+						test = false;
+						break;
+					}
+				}
+			}
+			for (unsigned i : used_teams) {
+				if (!norepeater(i, round_l, round_k + 1)) {
+					test = false;
+					break;
+				}
+				if (!norepeater(i, round_l - 1, round_k)) {
+					test = false;
+					break;
+				}
+			}
+			if (round_l != u_number_rounds - 1) { 
+				for (unsigned i : used_teams) {
+					if (!norepeater(i, round_k, round_l + 1)) {
+						test = false;
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	if (!test) {
+		num_vio = 1;
+		//cout << "not valid tho" << endl;
+	}
 
 	return make_pair(delta_cost, num_vio);
 }
@@ -1589,10 +1712,23 @@ int heuristic::Move_SwapTms(unsigned k)
 int heuristic::Move_PrtSwapRds(unsigned k)
 {
 	int gain = 0;
+	int better_count = 0;
+	pair <unsigned, unsigned> current_best;
+	pair <int, int> tmp_forspeed;
+	
 	// TODO
+	unsigned team_i = 1;
+	unsigned round_k = 1;
+	unsigned round_l = 6;
 
-	//TestSwapRds(3, 7);
-	SwapRds(4, 5);
+
+
+	tmp_forspeed = TestPrtSwapRds(team_i, round_k, round_l);
+
+	cout << "Distanz: " << tmp_forspeed.first << " und num_vio: " << tmp_forspeed.second << endl;
+
+	PrtSwapRds(team_i, round_k, round_l);
+
 	return gain;
 }
 
