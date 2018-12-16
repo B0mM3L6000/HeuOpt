@@ -1649,9 +1649,11 @@ int heuristic::Move_SwapHA(unsigned k)
 	for (unsigned a = 0; a < u_number_teams; a++) {
 		for (unsigned b = a + 1; b < u_number_teams; b++) {
 			tmp_forspeed = TestSwapHA(a,b);
-			if (tmp_forspeed.first >= gain && tmp_forspeed.second == 0) {
-				gain = tmp_forspeed.first;
-				current_best = make_pair(a, b);
+			if (tmp_forspeed.first > 0 && tmp_forspeed.second == 0) {
+				if (tmp_forspeed.first > gain) {
+					gain = tmp_forspeed.first;
+					current_best = make_pair(a, b);
+				}
 				better_count++;
 				if (better_count == k) {
 					break;
@@ -1685,9 +1687,11 @@ int heuristic::Move_SwapRds(unsigned k)
 		for (unsigned b = a + 1; b < u_number_rounds; b++) {
 			//cout << "Paar: " << a << ", " << b << endl;
 			tmp_forspeed = TestSwapRds(a, b);
-			if (tmp_forspeed.first >= gain && tmp_forspeed.second == 0) {
-				gain = tmp_forspeed.first;
-				current_best = make_pair(a, b);
+			if (tmp_forspeed.first > 0 && tmp_forspeed.second == 0) {
+				if (tmp_forspeed.first > gain) {
+					gain = tmp_forspeed.first;
+					current_best = make_pair(a, b);
+				}
 				better_count++;
 				if (better_count == k) {
 					break;
@@ -1720,9 +1724,11 @@ int heuristic::Move_SwapTms(unsigned k)
 	for (unsigned a = 0; a < u_number_teams; a++) {
 		for (unsigned b = a + 1; b < u_number_teams; b++) {
 			tmp_forspeed = TestSwapTms(a, b);
-			if (tmp_forspeed.first >= gain && tmp_forspeed.second == 0) {
-				gain = tmp_forspeed.first;
-				current_best = make_pair(a, b);
+			if (tmp_forspeed.first > 0 && tmp_forspeed.second == 0) {
+				if (tmp_forspeed.first > gain) {
+					gain = tmp_forspeed.first;
+					current_best = make_pair(a, b);
+				}
 				better_count++;
 				if (better_count == k) {
 					break;
@@ -1758,10 +1764,12 @@ int heuristic::Move_PrtSwapRds(unsigned k)
 			for (unsigned b = a + 1; b < u_number_rounds; b++) {
 				//cout << "Paar: " << a << ", " << b << endl;
 				tmp_forspeed = TestPrtSwapRds(c, a, b);
-				if (tmp_forspeed.first >= gain && tmp_forspeed.second == 0) {
-					gain = tmp_forspeed.first;
-					current_best_rounds = make_pair(a, b);
-					current_best_team = c;
+				if (tmp_forspeed.first > 0 && tmp_forspeed.second == 0) {
+					if (tmp_forspeed.first > gain) {
+						gain = tmp_forspeed.first;
+						current_best_rounds = make_pair(a, b);
+						current_best_team = c;
+					}
 					better_count++;
 					if (better_count == k) {
 						break;
