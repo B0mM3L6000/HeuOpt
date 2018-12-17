@@ -1,5 +1,5 @@
 #include "heuristic.h"
-
+#include <fstream>
 using namespace std;
 
 void CreateStartSolution( string filename, string output, int k ) 
@@ -15,6 +15,8 @@ void CreateStartSolution( string filename, string output, int k )
 	heureka.Easy_Startingsolution();
 	cout << "Die berechnete Startloesung kostet: " << heureka.Calculate_Distance() << endl;
 	timer.Stop();
+
+	int tmpdistance = heureka.Calculate_Distance();
 
 	cout << "Das Erstellen der Startloesung hat " << timer.FormattedTime() << " Sekunden gedauert." << endl;
 
@@ -33,6 +35,37 @@ void CreateStartSolution( string filename, string output, int k )
 	heureka.Move_PrtSwapTms(k);
 	//heureka.Move_SwapTms(k);
 	timer.Stop();
+
+	//SolutionFile erstellen
+	bool neueDatei = false;
+	string filename2 = "solution_ue2.csv";
+	ifstream temp(filename2);
+	if (!temp) neueDatei = true;
+	else temp.close();
+
+	ofstream stream(filename2, ios::app);
+	locale myloc("");
+	stream.imbue(myloc);
+
+	if (neueDatei)
+		stream << "Instanz; Swap Art; k; Kosten vorher; kosten nachher; Verstrichene Zeit;" << endl; // ';'= column separator
+																							   //Name
+	//instanz
+	stream << filename << ";";
+	//swapart (per hand anpassen)
+	stream << "PrtSwapTms" << ";";
+	//k
+	stream << k << ";";
+	//Distanz vorher
+	stream << tmpdistance << ";";
+	//Distanz nacher
+	stream << heureka.Calculate_Distance() << ";";
+	//Time
+	stream << timer.Seconds() << ";";
+	stream << endl;
+
+
+
 
 	heureka.Print_Schedule(true);
 	cout << "Heuristische Suche hat " << timer.FormattedTime() << " Sekunden gedauert." << endl;
