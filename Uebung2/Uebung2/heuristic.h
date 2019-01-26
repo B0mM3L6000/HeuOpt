@@ -53,7 +53,7 @@ public:
 	//suchen:
 	void ILS(int k);
 	void VND(int k);
-	void VNS(int k);
+	void VNS(int k, int maxiter);
 	void SA(int k);
 
 	// getter

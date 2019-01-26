@@ -1,0 +1,9 @@
+Instanz; Metaheuristik; k; Kosten vorher; kosten nachher; Verstrichene Zeit;
+instances/circ4.txt;VNS;5;26;20;0,595;
+instances/circ6.txt;VNS;5;96;76;3,806;
+instances/circ8.txt;VNS;5;224;158;11,189;
+instances/circ10.txt;VNS;5;414;312;33,976;
+instances/circ12.txt;VNS;5;750;486;72,039;
+instances/circ4.txt;VNS;5;26;20;0,574;
+instances/circ6.txt;VNS;5;96;70;2,724;
+instances/circ8.txt;VNS;5;224;154;12,463;

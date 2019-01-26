@@ -35,7 +35,7 @@ void CreateStartSolution( string filename, string output, int k )
 	//heureka.Move_PrtSwapTms(k);
 	//heureka.Move_SwapTms(k);
 	//heureka.VND(k);
-	heureka.VNS(k);
+	heureka.VNS(k, 100);
 	timer.Stop();
 
 
@@ -44,7 +44,7 @@ void CreateStartSolution( string filename, string output, int k )
 	
 	//SolutionFile erstellen
 	bool neueDatei = false;
-	string filename2 = "solution_uebung3_VND.csv";
+	string filename2 = "solution_uebung3_tests.csv";
 	ifstream temp(filename2);
 	if (!temp) neueDatei = true;
 	else temp.close();
@@ -59,7 +59,7 @@ void CreateStartSolution( string filename, string output, int k )
 	//instanz
 	stream << filename << ";";
 	//swapart (per hand anpassen)
-	stream << "test" << ";";
+	stream << "VNS" << ";";
 	//k
 	stream << k << ";";
 	//Distanz vorher
@@ -160,7 +160,7 @@ void main()
 	}
 	cout << "Auswahl: K = " << k << endl;
 	*/
-	int k = 1;   //k hier einstellen
+	int k = 5;   //k hier einstellen
 	int durchlaufe = 1;  //wieviele durchläufe pro instanz
 
 	for (int idx = instance_idx1; idx <= instance_idx2; idx++)
