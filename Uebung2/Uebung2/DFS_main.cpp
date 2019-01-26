@@ -34,17 +34,17 @@ void CreateStartSolution( string filename, string output, int k )
 	//heureka.Move_SwapRds(k);
 	//heureka.Move_PrtSwapTms(k);
 	//heureka.Move_SwapTms(k);
-	heureka.VND(k);
-	//heureka.VNS(k);
+	//heureka.VND(k);
+	heureka.VNS(k);
 	timer.Stop();
 
 
 
 
-	/*
+	
 	//SolutionFile erstellen
 	bool neueDatei = false;
-	string filename2 = "solution_ue2.csv";
+	string filename2 = "solution_uebung3_VND.csv";
 	ifstream temp(filename2);
 	if (!temp) neueDatei = true;
 	else temp.close();
@@ -59,7 +59,7 @@ void CreateStartSolution( string filename, string output, int k )
 	//instanz
 	stream << filename << ";";
 	//swapart (per hand anpassen)
-	stream << "PrtSwapTms" << ";";
+	stream << "test" << ";";
 	//k
 	stream << k << ";";
 	//Distanz vorher
@@ -70,14 +70,14 @@ void CreateStartSolution( string filename, string output, int k )
 	stream << timer.Seconds() << ";";
 	stream << endl;
 
-	*/
+	
 
 
 	heureka.Print_Schedule(true);
 	cout << "Heuristische Suche hat " << timer.FormattedTime() << " Sekunden gedauert." << endl;
 	cout << "Die berechnete Loesung kostet: " << heureka.Calculate_Distance() << endl;
 	heureka.Check_Constraints();
-	system("pause");
+	system("pause");   //auskommentieren für datenauswertung am ende
 
 }
 
@@ -149,7 +149,7 @@ void main()
 		}
 	}
 
-	/*
+	/*   hier wenn k als input sein soll
 	//Input k fuer lokale Suche:
 	cout << "Welches k soll fuer die k-Besten-Suche verwendet werden? Bitte eingeben: ";
 	int k = -1;
@@ -160,9 +160,10 @@ void main()
 	}
 	cout << "Auswahl: K = " << k << endl;
 	*/
-	int k = 5;
+	int k = 1;   //k hier einstellen
+	int durchlaufe = 1;  //wieviele durchläufe pro instanz
 
-	for ( int idx = instance_idx1; idx <= instance_idx2; idx++ )
+	for (int idx = instance_idx1; idx <= instance_idx2; idx++)
 	{
 		// Eingabe
 		string filename = string(filenames[idx]) + ".txt";
@@ -170,8 +171,11 @@ void main()
 		// Ausgabe
 		string output = string(filenames[idx]) + "_solution.txt";
 
-		// Konstruiere eine Startlösung
-		CreateStartSolution(filename, output, k);
+		// Konstruiere eine Startlösung und führe metaheuristik durch
+		for (int i = 0; i < durchlaufe; i++) {
+			CreateStartSolution(filename, output, k);
+			cout << "Iteration: " << i << endl;
+		}
 	}
 }
 

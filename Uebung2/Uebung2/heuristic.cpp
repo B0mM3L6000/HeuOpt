@@ -2450,6 +2450,7 @@ void heuristic::VND(int k)
 void heuristic::VNS(int k)
 {
 
+
 }
 
 //ILS:
@@ -2473,13 +2474,25 @@ void heuristic::SA(int k)
 pair<int, vector<vector<pair<int, bool>>>> heuristic::save() 
 {
 	int tmp_costs = Calculate_Distance();
-	vector<vector<pair<int, bool>>> tmp_spielplan;
+	vector<vector<pair<int, bool>>> tmp_spielplan(u_number_rounds);
+	for (int i = 0; i < u_number_rounds; i++) {
+		tmp_spielplan[i].resize(u_number_teams);
+		for (int j = 0; j < u_number_teams; j++) {
+			tmp_spielplan[i][j] = Get_Match(j, i);
+		}
+	}
 	//spielplan hier als schleife einspeichern
 	return make_pair(tmp_costs, tmp_spielplan);
 }
 
 //alte lsg wieder herstellen:
-void heuristic::restore(pair<int, vector<vector<pair<int, bool>>>>)
+void heuristic::restore(pair<int, vector<vector<pair<int, bool>>>> old)
 {
 	//spielplan hier als schleife ueberschreiben
+	vector<vector<pair<int, bool>>> spielplan_alt = old.second;
+	for (int i = 0; i < spielplan_alt.size(); i++) {
+		for (int j = 0; j < spielplan_alt[i].size(); j++) {
+			Set_Match(j,i,spielplan_alt[i][j].first,spielplan_alt[i][j].second);
+		}
+	}
 }
