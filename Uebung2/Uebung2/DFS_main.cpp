@@ -35,6 +35,7 @@ void CreateStartSolution( string filename, string output, int k )
 	//heureka.Move_PrtSwapTms(k);
 	//heureka.Move_SwapTms(k);
 	heureka.VND(k);
+	//heureka.VNS(k);
 	timer.Stop();
 
 

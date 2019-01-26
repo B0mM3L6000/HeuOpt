@@ -588,7 +588,7 @@ bool heuristic::Check_Constraints()
 					counter_consecutives++;
 					if (counter_consecutives > 3)
 					{
-						cout << "In Runde " << n << " spielt Team " << t << " mehr als 3 mal home oder away!" << endl;
+						//cout << "In Runde " << n << " spielt Team " << t << " mehr als 3 mal home oder away!" << endl;
 						return false;
 					}
 				}
@@ -598,7 +598,7 @@ bool heuristic::Check_Constraints()
 				// 3. no-repeater
 				if (Get_Match(t, n - 1).first == Get_Match(t, n).first)
 				{
-					cout << "In Runde " << n << " spielt Team " << t << " gegen denselber Gegner wie in der vorherigen Runde" << endl;
+					//cout << "In Runde " << n << " spielt Team " << t << " gegen denselber Gegner wie in der vorherigen Runde" << endl;
 					return false;
 				}
 			}
@@ -610,13 +610,13 @@ bool heuristic::Check_Constraints()
 			// 1. Played 2 times against each team?
 			if (counter_opponent[team] != 2)
 			{
-				cout << "Team " << t << " spielt nicht genau zweimal gegen: " << team << "!" << endl;
+				//cout << "Team " << t << " spielt nicht genau zweimal gegen: " << team << "!" << endl;
 				return false;
 			}
 			// does home / away fit?
 			if (!counter_home[team].first || !counter_home[team].second)
 			{
-				cout << "Team " << t << " spielt nicht einmal home und einmal away gegen Team: " << team << "!" << endl;
+				//cout << "Team " << t << " spielt nicht einmal home und einmal away gegen Team: " << team << "!" << endl;
 				return false;
 			}
 		}
@@ -629,13 +629,13 @@ bool heuristic::Check_Constraints()
 			// 1. Is home/away assignment ok?
 			if (Get_Match(t, n).second == Get_Match(Get_Match(t, n).first, n).second)
 			{
-				cout << "In Runde " << n << " spielt Team " << t << " nicht das passende home oder away!" << endl;
+				//cout << "In Runde " << n << " spielt Team " << t << " nicht das passende home oder away!" << endl;
 				return false;
 			}
 			// 2. Do the right opponents play against each other?
 			if (t != Get_Match(Get_Match(t, n).first, n).first)
 			{
-				cout << "In Runde " << n << " spielt der Gegner von Team " << t << "(Gegner= " << Get_Match(t, n).first << ") nicht gegen Team " << t << "!" << endl;
+				//cout << "In Runde " << n << " spielt der Gegner von Team " << t << "(Gegner= " << Get_Match(t, n).first << ") nicht gegen Team " << t << "!" << endl;
 				return false;
 			}
 		}
@@ -1741,6 +1741,30 @@ pair<int, int> heuristic::TestPrtSwapTms(unsigned team_i, unsigned team_j, unsig
 {
 	int delta_cost = 0; // gain
 	int num_vio = 0; // At first only 0 for feasible and 1 for infeasible
+	int distance_before = Calculate_Distance();
+	int distance_after = 0;
+
+	PrtSwapTms(team_i, team_j, round_k);
+	bool valid = Check_Constraints();
+	if (valid == true) {
+		distance_after = Calculate_Distance();
+		delta_cost = distance_before - distance_after;
+		PrtSwapTms(team_i, team_j, round_k);
+	}
+	else {
+		num_vio = 1;
+		PrtSwapTms(team_i, team_j, round_k);
+		return make_pair(delta_cost, num_vio);
+	}
+
+	return make_pair(delta_cost, num_vio);
+}
+
+/*
+pair<int, int> heuristic::TestPrtSwapTms(unsigned team_i, unsigned team_j, unsigned round_k)
+{
+	int delta_cost = 0; // gain
+	int num_vio = 0; // At first only 0 for feasible and 1 for infeasible
 	int distance_before = 0;
 	int distance_after = 0;
 	
@@ -1792,7 +1816,7 @@ pair<int, int> heuristic::TestPrtSwapTms(unsigned team_i, unsigned team_j, unsig
 	for (int i = 0; i < reihe_i.size(); i++) {
 		cout << "Team: " << reihe_i[i].first.first << " home(1)/away(0): " << reihe_i[i].first.second << " In Runde: " << reihe_i[i].second << endl;
 	}
-	*/
+	//
 
 	vector <pair<int, bool>>reihe_i_test;
 	vector <pair<int, bool>>reihe_j_test;
@@ -1818,7 +1842,7 @@ pair<int, int> heuristic::TestPrtSwapTms(unsigned team_i, unsigned team_j, unsig
 	for (int i = 0; i < reihe_i_test.size(); i++) {
 		cout << "Team: " << reihe_i_test[i].first << " Home(1)/Away(0): " << reihe_i_test[i].second << endl;
 	}
-	*/
+	//
 
 	//testen auf consecs:
 	int consec = 1;
@@ -1989,6 +2013,8 @@ pair<int, int> heuristic::TestPrtSwapTms(unsigned team_i, unsigned team_j, unsig
 
 	return make_pair(delta_cost, num_vio);
 }
+
+*/
 
 void heuristic::PrtSwapTms(unsigned team_i, unsigned team_j, unsigned round_k)
 {
@@ -2368,12 +2394,11 @@ void heuristic::Read_Schedule(string file)
 
 void heuristic::VND(int k)
 {
-	int t = 0; //iterationen zaehler
 	int n = 1; //Nachbarschaftsindex 1=HA, 2=SwapRds, 3=SwapTms, 4= PrtSwapRds, 5=PrtSwapTms
 	int improve = 0;
 	bool improvement_found = false;
 
-	while (n <= 4) { //durchgehen bis keine verbesserung mehr möglich
+	while (n <= 5) { //durchgehen bis keine verbesserung mehr möglich     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ hier noch auf 5 setzen sobald prtswaptms klappt +++++++++++++++++++++++++++++++
 		if (n == 1) {
 			do {
 				improve = Move_SwapHA(k);
@@ -2443,3 +2468,18 @@ void heuristic::SA(int k)
 
 
 //UEBUNG 3 Hilfsfunktionen:
+
+//alte lsg merken:
+pair<int, vector<vector<pair<int, bool>>>> heuristic::save() 
+{
+	int tmp_costs = Calculate_Distance();
+	vector<vector<pair<int, bool>>> tmp_spielplan;
+	//spielplan hier als schleife einspeichern
+	return make_pair(tmp_costs, tmp_spielplan);
+}
+
+//alte lsg wieder herstellen:
+void heuristic::restore(pair<int, vector<vector<pair<int, bool>>>>)
+{
+	//spielplan hier als schleife ueberschreiben
+}

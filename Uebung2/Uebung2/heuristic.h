@@ -126,6 +126,10 @@ public:
 	bool swapHA_homeaway_test(unsigned team, unsigned round1, unsigned round2);
 	//norepeater check:
 	bool norepeater(unsigned team, unsigned round1, unsigned round2);
+	//alte lösung merken:
+	pair<int, vector<vector<pair<int, bool>>>> save();
+	//alte lsg wieder herstellen:
+	void restore(pair<int, vector<vector<pair<int, bool>>>>);
 
 };
 
