@@ -50,6 +50,12 @@ public:
 	void Easy_Startingsolution();
 	void Advanced_Startingsolution();
 
+	//suchen:
+	void ILS(int k);
+	void VND(int k);
+	void VNS(int k);
+	void SA(int k);
+
 	// getter
 	// Input <current team, number of round>
 	// Output <opponent, home/away> 

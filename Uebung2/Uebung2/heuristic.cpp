@@ -334,8 +334,8 @@ void heuristic::Easy_Startingsolution()
 					else if (consecutive[t] >= 3)
 					{
 						bool home_t = Get_Match(t, n - 1).second;
-						if ((consecutive_start_of_schedule[opponent] + consecutive[opponent] > 3 && Get_Match(opponent, 1).second == home_t)
-							|| (consecutive_start_of_schedule[t] + consecutive[t] > 3 && Get_Match(t, 1).second == !home_t))
+						if ((consecutive_start_of_schedule[opponent] + consecutive[opponent] > 3 && Get_Match(opponent, 0).second == home_t)
+							|| (consecutive_start_of_schedule[t] + consecutive[t] > 3 && Get_Match(t, 0).second == !home_t))
 						{
 							// valid assignment not possible  -->  new schedule
 							n = 0;
@@ -359,8 +359,8 @@ void heuristic::Easy_Startingsolution()
 					else if (consecutive[opponent] >= 3)
 					{
 						bool home_opponent = Get_Match(opponent, n - 1).second;
-						if ((consecutive_start_of_schedule[opponent] + consecutive[opponent] > 3 && Get_Match(opponent, 1).second == !home_opponent)
-							|| (consecutive_start_of_schedule[t] + consecutive[t] > 3 && Get_Match(t, 1).second == home_opponent))
+						if ((consecutive_start_of_schedule[opponent] + consecutive[opponent] > 3 && Get_Match(opponent, 0).second == !home_opponent)
+							|| (consecutive_start_of_schedule[t] + consecutive[t] > 3 && Get_Match(t, 0).second == home_opponent))
 						{
 							// valid assignment not possible  -->  new schedule
 							n = 0;
@@ -381,8 +381,8 @@ void heuristic::Easy_Startingsolution()
 					// also valid for second half?
 					else
 					{
-						if ((consecutive_start_of_schedule[opponent] + consecutive[opponent] >= 3 && Get_Match(opponent, 1).second == random)
-							|| (consecutive_start_of_schedule[t] + consecutive[t] >= 3 && Get_Match(t, 1).second == !random))
+						if ((consecutive_start_of_schedule[opponent] + consecutive[opponent] >= 3 && Get_Match(opponent, 0).second == random)
+							|| (consecutive_start_of_schedule[t] + consecutive[t] >= 3 && Get_Match(t, 0).second == !random))
 						{
 							// not valid  -->  new schedule
 							n = 0;
@@ -709,11 +709,18 @@ pair<int, int> heuristic::Which_rounds(unsigned team_i, unsigned team_j) {
 	//in welchen runden spielen die Teams gegeneinander?
 	unsigned hinrunde = 0;
 	unsigned rueckrunde = 0;
-	for (unsigned i = 0; i < u_number_rounds / 2; i++) {
+	for (unsigned i = 0; i < u_number_rounds; i++) {
 		unsigned enemy = Get_Match(team_i, i).first;
 		if (enemy == team_j) {
 			hinrunde = i;
-			rueckrunde = i + (u_number_rounds / 2);
+			//rueckrunde = i + (u_number_rounds / 2);
+			break;
+		}
+	}
+	for (unsigned i = hinrunde + 1; i < u_number_rounds; i++) {
+		unsigned enemy = Get_Match(team_i, i).first;
+		if (enemy == team_j) {
+			rueckrunde = i;
 			break;
 		}
 	}
@@ -2055,10 +2062,12 @@ int heuristic::Move_SwapHA(unsigned k)
 
 	if (better_count > 0) {
 		SwapHA(current_best.first, current_best.second);
-		cout << "SwapHA Schritt mit Team " << current_best.first << " und Team " << current_best.second << " durchgefuehrt. Dabei wurde eine Verbesserung von " << gain << " erreicht." << endl;
+		//cout << "SwapHA Schritt mit Team " << current_best.first << " und Team " << current_best.second << " durchgefuehrt. Dabei wurde eine Verbesserung von " << gain << " erreicht." << endl;
+		//Print_Schedule(true);
+		//Check_Constraints();
 	}
 	else {
-		cout << "Lokales Optima erreicht." << endl;
+		//cout << "Lokales Optima erreicht." << endl;
 	}
 
 	return gain;
@@ -2093,10 +2102,12 @@ int heuristic::Move_SwapRds(unsigned k)
 
 	if (better_count > 0) {
 		SwapRds(current_best.first, current_best.second);
-		cout << "SwapRds Schritt mit Runde " << current_best.first << " und Runde " << current_best.second << " durchgefuehrt. Dabei wurde eine Verbesserung von " << gain << " erreicht." << endl;
+		//cout << "SwapRds Schritt mit Runde " << current_best.first << " und Runde " << current_best.second << " durchgefuehrt. Dabei wurde eine Verbesserung von " << gain << " erreicht." << endl;
+		//Print_Schedule(true);
+		//Check_Constraints();
 	}
 	else {
-		cout << "Lokales Optima erreicht." << endl;
+		//cout << "Lokales Optima erreicht." << endl;
 	}
 
 	return gain;
@@ -2130,10 +2141,10 @@ int heuristic::Move_SwapTms(unsigned k)
 
 	if (better_count > 0) {
 		SwapTms(current_best.first, current_best.second);
-		cout << "SwapTms Schritt mit Team " << current_best.first << " und Team " << current_best.second << " durchgefuehrt. Dabei wurde eine Verbesserung von " << gain << " erreicht." << endl;
+		//cout << "SwapTms Schritt mit Team " << current_best.first << " und Team " << current_best.second << " durchgefuehrt. Dabei wurde eine Verbesserung von " << gain << " erreicht." << endl;
 	}
 	else {
-		cout << "Lokales Optima erreicht." << endl;
+		//cout << "Lokales Optima erreicht." << endl;
 	}
 
 	return gain;
@@ -2175,10 +2186,10 @@ int heuristic::Move_PrtSwapRds(unsigned k)
 
 	if (better_count > 0) {
 		PrtSwapRds(current_best_team, current_best_rounds.first, current_best_rounds.second);
-		cout << "PrtSwapRds Schritt bei Team " << current_best_team << " in Runde " << current_best_rounds.first << " und Runde " << current_best_rounds.second << " durchgefuehrt. Dabei wurde eine Verbesserung von " << gain << " erreicht." << endl;
+		//cout << "PrtSwapRds Schritt bei Team " << current_best_team << " in Runde " << current_best_rounds.first << " und Runde " << current_best_rounds.second << " durchgefuehrt. Dabei wurde eine Verbesserung von " << gain << " erreicht." << endl;
 	}
 	else {
-		cout << "Lokales Optima erreicht." << endl;
+		//cout << "Lokales Optima erreicht." << endl;
 	}
 
 	return gain;
@@ -2219,10 +2230,10 @@ int heuristic::Move_PrtSwapTms(unsigned k)
 
 	if (better_count > 0) {
 		PrtSwapTms(current_best_teams.first, current_best_teams.second, current_best_round);
-		cout << "PrtSwapTms Schritt mit Team " << current_best_teams.first << " und Team " << current_best_teams.second << " in Runde "<< current_best_round <<" durchgefuehrt. Dabei wurde eine Verbesserung von " << gain << " erreicht." << endl;
+		//cout << "PrtSwapTms Schritt mit Team " << current_best_teams.first << " und Team " << current_best_teams.second << " in Runde "<< current_best_round <<" durchgefuehrt. Dabei wurde eine Verbesserung von " << gain << " erreicht." << endl;
 	}
 	else {
-		cout << "Lokales Optima erreicht." << endl;
+		//cout << "Lokales Optima erreicht." << endl;
 	}
 
 	return gain;
@@ -2346,3 +2357,89 @@ void heuristic::Read_Schedule(string file)
 	}
 	schedulefile.close();
 }
+
+
+
+
+
+//UEBUNG 3:
+
+//VND:
+
+void heuristic::VND(int k)
+{
+	int t = 0; //iterationen zaehler
+	int n = 1; //Nachbarschaftsindex 1=HA, 2=SwapRds, 3=SwapTms, 4= PrtSwapRds, 5=PrtSwapTms
+	int improve = 0;
+	bool improvement_found = false;
+
+	while (n <= 4) { //durchgehen bis keine verbesserung mehr möglich
+		if (n == 1) {
+			do {
+				improve = Move_SwapHA(k);
+			} while (improve > 0);
+			//cout << "Durchgang in n = 1" << endl;
+		}
+		else if (n == 2) {
+			improve = Move_SwapRds(k);
+			if (improve > 0) {
+				improvement_found = true;
+				n = 1;
+			}
+		}
+		else if (n == 3) {
+			improve = Move_SwapTms(k);
+			if (improve > 0) {
+				improvement_found = true;
+				n = 1;
+			}
+		}
+		else if (n == 4) {
+			improve = Move_PrtSwapRds(k);
+			if (improve > 0) {
+				improvement_found = true;
+				n = 1;
+			}
+		}
+		else if (n == 5) {
+			improve = Move_PrtSwapTms(k);
+			if (improve > 0) {
+				improvement_found = true;
+				n = 1;
+			}
+		}
+		if (improvement_found == true) {
+			improvement_found = false;
+			//cout << "improvement in hoeherem n" << endl;
+		}
+		else {
+			n = n + 1;
+			//cout << "kein improvement also n+1: " << n << endl;
+		}
+	}
+	//ENDE
+}
+
+//VNS:
+
+void heuristic::VNS(int k)
+{
+
+}
+
+//ILS:
+
+void heuristic::ILS(int k)
+{
+
+}
+
+//SA:
+
+void heuristic::SA(int k)
+{
+
+}
+
+
+//UEBUNG 3 Hilfsfunktionen:

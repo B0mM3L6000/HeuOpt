@@ -32,10 +32,15 @@ void CreateStartSolution( string filename, string output, int k )
 	//heureka.Move_PrtSwapRds(k); //usw.
 	//heureka.Move_SwapHA(k);
 	//heureka.Move_SwapRds(k);
-	heureka.Move_PrtSwapTms(k);
+	//heureka.Move_PrtSwapTms(k);
 	//heureka.Move_SwapTms(k);
+	heureka.VND(k);
 	timer.Stop();
 
+
+
+
+	/*
 	//SolutionFile erstellen
 	bool neueDatei = false;
 	string filename2 = "solution_ue2.csv";
@@ -48,7 +53,7 @@ void CreateStartSolution( string filename, string output, int k )
 	stream.imbue(myloc);
 
 	if (neueDatei)
-		stream << "Instanz; Swap Art; k; Kosten vorher; kosten nachher; Verstrichene Zeit;" << endl; // ';'= column separator
+		stream << "Instanz; Metaheuristik; k; Kosten vorher; kosten nachher; Verstrichene Zeit;" << endl; // ';'= column separator
 																							   //Name
 	//instanz
 	stream << filename << ";";
@@ -64,7 +69,7 @@ void CreateStartSolution( string filename, string output, int k )
 	stream << timer.Seconds() << ";";
 	stream << endl;
 
-
+	*/
 
 
 	heureka.Print_Schedule(true);
@@ -143,6 +148,7 @@ void main()
 		}
 	}
 
+	/*
 	//Input k fuer lokale Suche:
 	cout << "Welches k soll fuer die k-Besten-Suche verwendet werden? Bitte eingeben: ";
 	int k = -1;
@@ -152,8 +158,8 @@ void main()
 		cin >> k;
 	}
 	cout << "Auswahl: K = " << k << endl;
-
-
+	*/
+	int k = 5;
 
 	for ( int idx = instance_idx1; idx <= instance_idx2; idx++ )
 	{
