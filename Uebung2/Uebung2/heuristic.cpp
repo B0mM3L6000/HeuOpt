@@ -2468,7 +2468,7 @@ void heuristic::VNS(int k, int maxiter)
 
 		//n = rand() % 2 + 1;
 		validtest = false;
-		cout << "Iteration: " << iter + 1 << " mit Nachbarschaft n = " << n << endl;
+		//cout << "Iteration: " << iter + 1 << " mit Nachbarschaft n = " << n << endl;
 
 		//Schütteln
 		//lokale suche mit N
@@ -2612,9 +2612,151 @@ void heuristic::VNS(int k, int maxiter)
 
 //ILS:
 
-void heuristic::ILS(int k)
+void heuristic::ILS(int k, int maxiter)
 {
+	int n = 1; //Nachbarschaftsindex 1=HA, 2=SwapRds, 3=SwapTms, 4= PrtSwapRds, 5=PrtSwapTms
+	pair<int, vector<vector<pair<int, bool>>>> currentbest = save(); //tmpplan für currentbest
+	bool validtest = false;
+	int rnd_team_i;
+	int rnd_team_j;
+	int rnd_round_a;
+	int rnd_round_b;
+	int improve = 0;
+	int tmpteamVNS;
+	int tmproundVNS;
+	int testtmp;
+	srand(time(NULL));
 
+	//initiale lokale suche:
+
+	do {
+		improve = Move_SwapHA(k);    //hier lokale nachbarschaft auswählen
+	} while (improve > 0);
+
+	currentbest = save();
+
+	for (int i = 0; i < maxiter; i++) {
+		//Pertubationsschritt
+
+		n = 1;    //hier nachbarschaftsschritt zum pertubieren einstellen
+
+		if (n == 5) {
+			while (validtest == false) {
+				rnd_team_i = rand() % u_number_teams;
+				rnd_team_j = rand() % u_number_teams;
+				while (rnd_team_i == rnd_team_j) {
+					rnd_team_j = rand() % u_number_teams;
+				}
+				if (rnd_team_i > rnd_team_j) {
+					tmpteamVNS = rnd_team_i;
+					rnd_team_i = rnd_team_j;
+					rnd_team_j = tmpteamVNS;
+				}
+
+				testtmp = TestSwapHA(rnd_team_i, rnd_team_j).second;
+				if (testtmp == 0) {
+					validtest = true;
+				}
+			}
+			SwapHA(rnd_team_i, rnd_team_j); //Schütteln mit validem Schritt
+		}
+		else if (n == 2) {
+			while (validtest == false) {
+				rnd_round_a = rand() % u_number_rounds;
+				rnd_round_b = rand() % u_number_rounds;
+				while (rnd_round_a == rnd_round_b) {
+					rnd_round_b = rand() % u_number_rounds;
+				}
+				if (rnd_round_a > rnd_round_b) {
+					tmproundVNS = rnd_round_a;
+					rnd_round_a = rnd_round_b;
+					rnd_round_b = tmproundVNS;
+				}
+				testtmp = TestSwapRds(rnd_round_a, rnd_round_b).second;
+				if (testtmp == 0) {
+					validtest = true;
+				}
+			}
+			SwapRds(rnd_round_a, rnd_round_b); //Schütteln mit validem Schritt
+		}
+		else if (n == 3) {
+			while (validtest == false) {
+				rnd_team_i = rand() % u_number_teams;
+				rnd_team_j = rand() % u_number_teams;
+				while (rnd_team_i == rnd_team_j) {
+					rnd_team_j = rand() % u_number_teams;
+				}
+				if (rnd_team_i > rnd_team_j) {
+					tmpteamVNS = rnd_team_i;
+					rnd_team_i = rnd_team_j;
+					rnd_team_j = tmpteamVNS;
+				}
+
+				testtmp = TestSwapTms(rnd_team_i, rnd_team_j).second;
+				if (testtmp == 0) {
+					validtest = true;
+				}
+			}
+			SwapTms(rnd_team_i, rnd_team_j); //Schütteln mit validem Schritt
+		}
+		else if (n == 4) {
+			while (validtest == false) {
+				rnd_round_a = rand() % u_number_rounds;
+				rnd_round_b = rand() % u_number_rounds;
+				rnd_team_i = rand() % u_number_teams;
+				while (rnd_round_a == rnd_round_b) {
+					rnd_round_b = rand() % u_number_rounds;
+				}
+				if (rnd_round_a > rnd_round_b) {
+					tmproundVNS = rnd_round_a;
+					rnd_round_a = rnd_round_b;
+					rnd_round_b = tmproundVNS;
+				}
+
+				testtmp = TestPrtSwapRds(rnd_team_i, rnd_round_a, rnd_round_b).second;
+				if (testtmp == 0) {
+					validtest = true;
+				}
+			}
+			PrtSwapRds(rnd_team_i, rnd_round_a, rnd_round_b); //Schütteln mit validem Schritt
+		}
+		else if (n == 5) {
+			while (validtest == false) {
+				rnd_team_i = rand() % u_number_teams;
+				rnd_team_j = rand() % u_number_teams;
+				rnd_round_a = rand() % u_number_rounds;
+				while (rnd_team_i == rnd_team_j) {
+					rnd_team_j = rand() % u_number_teams;
+				}
+				if (rnd_team_i > rnd_team_j) {
+					tmpteamVNS = rnd_team_i;
+					rnd_team_i = rnd_team_j;
+					rnd_team_j = tmpteamVNS;
+				}
+
+				testtmp = TestPrtSwapTms(rnd_team_i, rnd_team_j, rnd_round_a).second;
+				if (testtmp == 0) {
+					validtest = true;
+				}
+			}
+			PrtSwapTms(rnd_team_i, rnd_team_j, rnd_round_a); //Schütteln mit validem Schritt
+		}
+
+		//Lokale suche
+
+		do {
+			improve = Move_SwapTms(k);    //hier lokale nachbarschaft auswählen
+		} while (improve > 0);
+
+
+		//Akzeptanz
+		if (Calculate_Distance() < currentbest.first) {
+			currentbest = save();
+		}
+		else {
+			restore(currentbest);
+		}
+	}
 }
 
 //SA:

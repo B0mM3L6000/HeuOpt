@@ -51,7 +51,7 @@ public:
 	void Advanced_Startingsolution();
 
 	//suchen:
-	void ILS(int k);
+	void ILS(int k, int maxiter);
 	void VND(int k);
 	void VNS(int k, int maxiter);
 	void SA(int k);

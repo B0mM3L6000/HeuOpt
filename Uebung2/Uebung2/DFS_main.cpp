@@ -28,14 +28,19 @@ void CreateStartSolution( string filename, string output, int k )
 	// TODO
 
 	//int k = 100;
+	int iterationen = 100; //angeben wieviele iterationen
+
 	timer.Restart();
+
 	//heureka.Move_PrtSwapRds(k); //usw.
 	//heureka.Move_SwapHA(k);
 	//heureka.Move_SwapRds(k);
 	//heureka.Move_PrtSwapTms(k);
 	//heureka.Move_SwapTms(k);
 	//heureka.VND(k);
-	heureka.VNS(k, 100);
+	//heureka.VNS(k, iterationen);  
+	heureka.ILS(k, iterationen);
+
 	timer.Stop();
 
 
@@ -54,14 +59,16 @@ void CreateStartSolution( string filename, string output, int k )
 	stream.imbue(myloc);
 
 	if (neueDatei)
-		stream << "Instanz; Metaheuristik; k; Kosten vorher; kosten nachher; Verstrichene Zeit;" << endl; // ';'= column separator
+		stream << "Instanz; Metaheuristik; k; Iterationen; Kosten vorher; kosten nachher; Verstrichene Zeit;" << endl; // ';'= column separator
 																							   //Name
 	//instanz
 	stream << filename << ";";
 	//swapart (per hand anpassen)
-	stream << "VNS" << ";";
+	stream << "ILS" << ";";
 	//k
 	stream << k << ";";
+	//Iterationen
+	stream << iterationen << ";";
 	//Distanz vorher
 	stream << tmpdistance << ";";
 	//Distanz nacher
@@ -77,7 +84,7 @@ void CreateStartSolution( string filename, string output, int k )
 	cout << "Heuristische Suche hat " << timer.FormattedTime() << " Sekunden gedauert." << endl;
 	cout << "Die berechnete Loesung kostet: " << heureka.Calculate_Distance() << endl;
 	heureka.Check_Constraints();
-	system("pause");   //auskommentieren für datenauswertung am ende
+	//system("pause");   //auskommentieren für datenauswertung am ende
 
 }
 
