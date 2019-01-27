@@ -54,7 +54,7 @@ public:
 	void ILS(int k, int maxiter);
 	void VND(int k);
 	void VNS(int k, int maxiter);
-	void SA(int k, int maxiter, int lsteps, int cooling, int nachbarschaft, int maxreheat);
+	void SA(int maxiter, int lsteps, int cooling, int nachbarschaft, int maxreheat, double extracost, double tstart);
 
 	// getter
 	// Input <current team, number of round>

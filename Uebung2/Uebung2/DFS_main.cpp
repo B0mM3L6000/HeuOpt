@@ -29,6 +29,10 @@ void CreateStartSolution( string filename, string output, int k )
 
 	//int k = 100;
 	int iterationen = 100; //angeben wieviele iterationen
+	int l = 100;  //steps pro phase bei SA
+	int reheats = 5;
+	int extracosts = 10;
+	double starttemperatur = 1000;
 
 	timer.Restart();
 
@@ -38,8 +42,9 @@ void CreateStartSolution( string filename, string output, int k )
 	//heureka.Move_PrtSwapTms(k);
 	//heureka.Move_SwapTms(k);
 	//heureka.VND(k);
-	//heureka.VNS(k, iterationen);  
-	heureka.ILS(k, iterationen);
+	heureka.VNS(k, iterationen);  
+	//heureka.ILS(k, iterationen);
+	//heureka.SA(iterationen, l, 1, 6, reheats, extracosts, starttemperatur);
 
 	timer.Stop();
 
@@ -49,7 +54,7 @@ void CreateStartSolution( string filename, string output, int k )
 	
 	//SolutionFile erstellen
 	bool neueDatei = false;
-	string filename2 = "solution_uebung3_ILS.csv";
+	string filename2 = "solution_uebung3_VNS.csv";
 	ifstream temp(filename2);
 	if (!temp) neueDatei = true;
 	else temp.close();
@@ -59,16 +64,24 @@ void CreateStartSolution( string filename, string output, int k )
 	stream.imbue(myloc);
 
 	if (neueDatei)
-		stream << "Instanz; Metaheuristik; k; Iterationen; Kosten vorher; kosten nachher; Verstrichene Zeit;" << endl; // ';'= column separator
+		stream << "Instanz; Metaheuristik; k; Iterationen; Kosten vorher; Kosten nachher; Verstrichene Zeit;" << endl; // ';'= column separator
 																							   //Name
 	//instanz
 	stream << filename << ";";
 	//swapart (per hand anpassen)
-	stream << "ILS" << ";";
+	stream << "VNS" << ";";
 	//k
 	stream << k << ";";
 	//Iterationen
 	stream << iterationen << ";";
+	//L
+	//stream << l << ";";
+	//reheats
+	//stream << reheats << ";";
+	//extrakosten
+	//stream << extracosts << ";";
+	//start temperatur t0
+	//stream << starttemperatur << ";";
 	//Distanz vorher
 	stream << tmpdistance << ";";
 	//Distanz nacher
@@ -167,8 +180,8 @@ void main()
 	}
 	cout << "Auswahl: K = " << k << endl;
 	*/
-	int k = 1;   //k hier einstellen
-	int durchlaufe = 1;  //wieviele durchläufe pro instanz
+	int k = 100;   //k hier einstellen
+	int durchlaufe = 10;  //wieviele durchläufe pro instanz
 
 	for (int idx = instance_idx1; idx <= instance_idx2; idx++)
 	{

@@ -2398,7 +2398,7 @@ void heuristic::VND(int k)
 	int improve = 0;
 	bool improvement_found = false;
 
-	while (n <= 5) { //durchgehen bis keine verbesserung mehr möglich     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ hier noch auf 5 setzen sobald prtswaptms klappt +++++++++++++++++++++++++++++++
+	while (n <= 5) { //durchgehen bis keine verbesserung mehr möglich     
 		if (n == 1) {
 			do {
 				improve = Move_SwapHA(k);
@@ -2491,9 +2491,9 @@ void heuristic::VNS(int k, int maxiter)
 				}
 			}
 			SwapHA(rnd_team_i, rnd_team_j); //Schütteln mit validem Schritt
-			do {
-				improve = Move_SwapHA(k);
-			} while (improve > 0);
+			//do {
+			//	improve = Move_SwapHA(k);
+			//} while (improve > 0);
 		}
 		else if (n == 2) {
 			while (validtest == false) {
@@ -2513,9 +2513,9 @@ void heuristic::VNS(int k, int maxiter)
 				}
 			}
 			SwapRds(rnd_round_a, rnd_round_b); //Schütteln mit validem Schritt
-			do {
-				improve = Move_SwapRds(k);
-			} while (improve > 0);
+			//do {
+			//	improve = Move_SwapRds(k);
+			//} while (improve > 0);
 		}
 		else if (n == 3) {
 			while (validtest == false) {
@@ -2536,9 +2536,9 @@ void heuristic::VNS(int k, int maxiter)
 				}
 			}
 			SwapTms(rnd_team_i, rnd_team_j); //Schütteln mit validem Schritt
-			do {
-				improve = Move_SwapTms(k);
-			} while (improve > 0);
+			//do {
+			//	improve = Move_SwapTms(k);
+			//} while (improve > 0);
 		}
 		else if (n == 4) {
 			while (validtest == false) {
@@ -2560,9 +2560,9 @@ void heuristic::VNS(int k, int maxiter)
 				}
 			}
 			PrtSwapRds(rnd_team_i, rnd_round_a, rnd_round_b); //Schütteln mit validem Schritt
-			do {
+			/*do {
 				improve = Move_PrtSwapRds(k);
-			} while (improve > 0);
+			} while (improve > 0);*/
 		}
 		else if (n == 5) {
 			while (validtest == false) {
@@ -2584,13 +2584,15 @@ void heuristic::VNS(int k, int maxiter)
 				}
 			}
 			PrtSwapTms(rnd_team_i, rnd_team_j, rnd_round_a); //Schütteln mit validem Schritt
-			do {
-				improve = Move_PrtSwapTms(k);
-			} while (improve > 0);
+			////do {
+			////	improve = Move_PrtSwapTms(k);
+			////} while (improve > 0);
 		}
 
-
-
+		//lokale suche
+		do {
+			improve = Move_SwapHA(k);
+		} while (improve > 0);
 
 		//akzeptanz:
 		if (Calculate_Distance() < currentbest.first) {
@@ -2604,7 +2606,7 @@ void heuristic::VNS(int k, int maxiter)
 			else {
 				n++;
 			}
-		restore(currentbest);
+			restore(currentbest);
 		}
 	}
 
@@ -2630,7 +2632,7 @@ void heuristic::ILS(int k, int maxiter)
 	//initiale lokale suche:
 
 	do {
-		improve = Move_SwapRds(k);    //hier lokale nachbarschaft auswählen (und unten nochmal)
+		improve = Move_SwapHA(k);    //hier lokale nachbarschaft auswählen (und unten nochmal)
 	} while (improve > 0);
 
 	currentbest = save();
@@ -2746,7 +2748,7 @@ void heuristic::ILS(int k, int maxiter)
 		//Lokale suche
 
 		do {
-			improve = Move_SwapRds(k);    //hier lokale nachbarschaft auswählen
+			improve = Move_SwapHA(k);    //hier lokale nachbarschaft auswählen
 		} while (improve > 0);
 
 
@@ -2762,7 +2764,7 @@ void heuristic::ILS(int k, int maxiter)
 
 //SA:
 
-void heuristic::SA(int k, int maxiter, int lsteps, int cooling, int nachbarschaft, int maxreheat)
+void heuristic::SA(int maxiter, int lsteps, int cooling, int nachbarschaft, int maxreheat, double extracost, double tstart)
 {
 	//variablen initialisieren
 
@@ -2778,25 +2780,30 @@ void heuristic::SA(int k, int maxiter, int lsteps, int cooling, int nachbarschaf
 	int tmproundVNS;
 	int testtmp;
 	srand(time(NULL));
-	double temperatur;
+	double temperatur = tstart;
 	int tmpdistance = currentbest.first;
-	int diff;
-	int newdistance;
+	double diff;
+	double newdistance;
 	double epsilon;
-	double besttemperatur;
+	double besttemperatur = temperatur;
 	int counter;
+	int w = extracost;
 
 
 	for (int r = 0; r < maxreheat; r++) {
-		for (int i = 0; i < maxiter; i++) {
+		for(int i = 0 ; i < maxiter; i++)  {
+
 
 			counter = 0;
 			while (counter < lsteps) {
+				counter++;
 				//zufallsschritt in N
 				validtest = false;
+				if (nachbarschaft == 6) {
+					n = rand() % 5 + 1;
+				}
 
 				if (n == 1) {
-					while (validtest == false) {
 						rnd_team_i = rand() % u_number_teams;
 						rnd_team_j = rand() % u_number_teams;
 						while (rnd_team_i == rnd_team_j) {
@@ -2813,10 +2820,11 @@ void heuristic::SA(int k, int maxiter, int lsteps, int cooling, int nachbarschaf
 							validtest = true;
 							newdistance = TestSwapHA(rnd_team_i, rnd_team_j).first;
 						}
-					}
+						else {
+							newdistance = (TestSwapHA(rnd_team_i, rnd_team_j).first) -w;
+						}
 				}
 				else if (n == 2) {
-					while (validtest == false) {
 						rnd_round_a = rand() % u_number_rounds;
 						rnd_round_b = rand() % u_number_rounds;
 						while (rnd_round_a == rnd_round_b) {
@@ -2832,10 +2840,11 @@ void heuristic::SA(int k, int maxiter, int lsteps, int cooling, int nachbarschaf
 							validtest = true;
 							newdistance = TestSwapRds(rnd_round_a, rnd_round_b).first;
 						}
-					}
+						else {
+							newdistance = (TestSwapRds(rnd_round_a, rnd_round_b).first) - w;
+						}
 				}
 				else if (n == 3) {
-					while (validtest == false) {
 						rnd_team_i = rand() % u_number_teams;
 						rnd_team_j = rand() % u_number_teams;
 						while (rnd_team_i == rnd_team_j) {
@@ -2852,10 +2861,11 @@ void heuristic::SA(int k, int maxiter, int lsteps, int cooling, int nachbarschaf
 							validtest = true;
 							newdistance = TestSwapTms(rnd_team_i, rnd_team_j).first;
 						}
-					}
+						else {
+							newdistance = (TestSwapTms(rnd_team_i, rnd_team_j).first) -w;
+						}
 				}
 				else if (n == 4) {
-					while (validtest == false) {
 						rnd_round_a = rand() % u_number_rounds;
 						rnd_round_b = rand() % u_number_rounds;
 						rnd_team_i = rand() % u_number_teams;
@@ -2873,10 +2883,11 @@ void heuristic::SA(int k, int maxiter, int lsteps, int cooling, int nachbarschaf
 							validtest = true;
 							newdistance = TestPrtSwapRds(rnd_team_i, rnd_round_a, rnd_round_b).first;
 						}
-					}
+						else {
+							newdistance = (TestPrtSwapRds(rnd_team_i, rnd_round_a, rnd_round_b).first) -w;
+						}
 				}
 				else if (n == 5) {
-					while (validtest == false) {
 						rnd_team_i = rand() % u_number_teams;
 						rnd_team_j = rand() % u_number_teams;
 						rnd_round_a = rand() % u_number_rounds;
@@ -2894,19 +2905,22 @@ void heuristic::SA(int k, int maxiter, int lsteps, int cooling, int nachbarschaf
 							validtest = true;
 							newdistance = TestPrtSwapTms(rnd_team_i, rnd_team_j, rnd_round_a).first;
 						}
-					}
+						else {
+							newdistance = (TestPrtSwapTms(rnd_team_i, rnd_team_j, rnd_round_a).first) - w;
+						}
 				}
 
 				//Differenz (gain des steps) berechnen:
-				diff = newdistance;
+				diff = -newdistance;
+				//cout << diff << endl;
 
 				//akzeptanz (wenn lsg besser oder wenn wahrscheinlichkeit abhänig von temperatur
 
 				//zufallszahl für wahrscheinlichkeit erzeugen
-				epsilon = ((double)rand() / (RAND_MAX)) + 1;
+				epsilon = ((double)rand() / (RAND_MAX));
 
-				if (diff >= 0) {
-					counter++;
+				if (diff <= 0) {
+					//counter++;
 					if (n == 1) {
 						SwapHA(rnd_team_i, rnd_team_j);
 					}
@@ -2923,13 +2937,16 @@ void heuristic::SA(int k, int maxiter, int lsteps, int cooling, int nachbarschaf
 						PrtSwapTms(rnd_team_i, rnd_team_j, rnd_round_a);
 					}
 					//wenn valide und besser als bisher bestes dann neues beste updaten:
-					if (Calculate_Distance() < currentbest.first) {
-						currentbest = save();
-						besttemperatur = temperatur;
+					if (validtest == true) {
+						if (Calculate_Distance() < currentbest.first) {
+						
+							currentbest = save();
+							besttemperatur = temperatur;
+						}
 					}
 				}
 				else if (epsilon <= exp((diff / temperatur)*(-1))) {
-					counter++;
+					//counter++;
 					if (n == 1) {
 						SwapHA(rnd_team_i, rnd_team_j);
 					}
@@ -2946,8 +2963,9 @@ void heuristic::SA(int k, int maxiter, int lsteps, int cooling, int nachbarschaf
 						PrtSwapTms(rnd_team_i, rnd_team_j, rnd_round_a);
 					}
 					//wenn valide und besser als bisher bestes dann neues beste updaten:
-					if (Calculate_Distance() < currentbest.first) {
-						if (validtest == true) {
+					if (validtest == true) {
+						if (Calculate_Distance() < currentbest.first) {
+						
 							currentbest = save();
 							besttemperatur = temperatur;
 						}
@@ -2957,15 +2975,21 @@ void heuristic::SA(int k, int maxiter, int lsteps, int cooling, int nachbarschaf
 			}
 			//temperatur updaten:
 			//Cooling schemes:
-			if (cooling == 1) {
-				temperatur = temperatur * 0.9999;
+			if (cooling == 1) {   //geometrisch
+				temperatur = temperatur * 0.99;
+			}
+			else if (cooling == 2) { //Lundy-Mees
+				temperatur = temperatur / (1 + 0, 0000001 * temperatur);
 			}
 
 			//hier weitere cooling schemes ergänzbar
 
+			cout << "Current best: " << currentbest.first << " - Temperatur: " << temperatur << " - Aktuelle Distanz: " << Calculate_Distance() << "  in Loop " << i << " / " << maxiter << endl;
+
 		}
 		//reheat:
 		temperatur = 2 * besttemperatur;
+		cout << "Reheat loop nummer: " << r << endl;
 	}
 	//beste lsg wieder herstellen:
 	restore(currentbest);
