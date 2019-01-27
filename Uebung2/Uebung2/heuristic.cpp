@@ -2630,7 +2630,7 @@ void heuristic::ILS(int k, int maxiter)
 	//initiale lokale suche:
 
 	do {
-		improve = Move_SwapHA(k);    //hier lokale nachbarschaft auswählen
+		improve = Move_SwapRds(k);    //hier lokale nachbarschaft auswählen (und unten nochmal)
 	} while (improve > 0);
 
 	currentbest = save();
@@ -2638,9 +2638,10 @@ void heuristic::ILS(int k, int maxiter)
 	for (int i = 0; i < maxiter; i++) {
 		//Pertubationsschritt
 
-		n = 1;    //hier nachbarschaftsschritt zum pertubieren einstellen
+		validtest = false;
+		n = 5;    //hier nachbarschaftsschritt zum pertubieren einstellen
 
-		if (n == 5) {
+		if (n == 1) {
 			while (validtest == false) {
 				rnd_team_i = rand() % u_number_teams;
 				rnd_team_j = rand() % u_number_teams;
@@ -2745,7 +2746,7 @@ void heuristic::ILS(int k, int maxiter)
 		//Lokale suche
 
 		do {
-			improve = Move_SwapTms(k);    //hier lokale nachbarschaft auswählen
+			improve = Move_SwapRds(k);    //hier lokale nachbarschaft auswählen
 		} while (improve > 0);
 
 
@@ -2761,9 +2762,213 @@ void heuristic::ILS(int k, int maxiter)
 
 //SA:
 
-void heuristic::SA(int k)
+void heuristic::SA(int k, int maxiter, int lsteps, int cooling, int nachbarschaft, int maxreheat)
 {
+	//variablen initialisieren
 
+	int n = nachbarschaft;; //Nachbarschaftsindex 1=HA, 2=SwapRds, 3=SwapTms, 4= PrtSwapRds, 5=PrtSwapTms
+	pair<int, vector<vector<pair<int, bool>>>> currentbest = save(); //tmpplan für currentbest
+	bool validtest = false;
+	int rnd_team_i;
+	int rnd_team_j;
+	int rnd_round_a;
+	int rnd_round_b;
+	int improve = 0;
+	int tmpteamVNS;
+	int tmproundVNS;
+	int testtmp;
+	srand(time(NULL));
+	double temperatur;
+	int tmpdistance = currentbest.first;
+	int diff;
+	int newdistance;
+	double epsilon;
+	double besttemperatur;
+	int counter;
+
+
+	for (int r = 0; r < maxreheat; r++) {
+		for (int i = 0; i < maxiter; i++) {
+
+			counter = 0;
+			while (counter < lsteps) {
+				//zufallsschritt in N
+				validtest = false;
+
+				if (n == 1) {
+					while (validtest == false) {
+						rnd_team_i = rand() % u_number_teams;
+						rnd_team_j = rand() % u_number_teams;
+						while (rnd_team_i == rnd_team_j) {
+							rnd_team_j = rand() % u_number_teams;
+						}
+						if (rnd_team_i > rnd_team_j) {
+							tmpteamVNS = rnd_team_i;
+							rnd_team_i = rnd_team_j;
+							rnd_team_j = tmpteamVNS;
+						}
+
+						testtmp = TestSwapHA(rnd_team_i, rnd_team_j).second;
+						if (testtmp == 0) {
+							validtest = true;
+							newdistance = TestSwapHA(rnd_team_i, rnd_team_j).first;
+						}
+					}
+				}
+				else if (n == 2) {
+					while (validtest == false) {
+						rnd_round_a = rand() % u_number_rounds;
+						rnd_round_b = rand() % u_number_rounds;
+						while (rnd_round_a == rnd_round_b) {
+							rnd_round_b = rand() % u_number_rounds;
+						}
+						if (rnd_round_a > rnd_round_b) {
+							tmproundVNS = rnd_round_a;
+							rnd_round_a = rnd_round_b;
+							rnd_round_b = tmproundVNS;
+						}
+						testtmp = TestSwapRds(rnd_round_a, rnd_round_b).second;
+						if (testtmp == 0) {
+							validtest = true;
+							newdistance = TestSwapRds(rnd_round_a, rnd_round_b).first;
+						}
+					}
+				}
+				else if (n == 3) {
+					while (validtest == false) {
+						rnd_team_i = rand() % u_number_teams;
+						rnd_team_j = rand() % u_number_teams;
+						while (rnd_team_i == rnd_team_j) {
+							rnd_team_j = rand() % u_number_teams;
+						}
+						if (rnd_team_i > rnd_team_j) {
+							tmpteamVNS = rnd_team_i;
+							rnd_team_i = rnd_team_j;
+							rnd_team_j = tmpteamVNS;
+						}
+
+						testtmp = TestSwapTms(rnd_team_i, rnd_team_j).second;
+						if (testtmp == 0) {
+							validtest = true;
+							newdistance = TestSwapTms(rnd_team_i, rnd_team_j).first;
+						}
+					}
+				}
+				else if (n == 4) {
+					while (validtest == false) {
+						rnd_round_a = rand() % u_number_rounds;
+						rnd_round_b = rand() % u_number_rounds;
+						rnd_team_i = rand() % u_number_teams;
+						while (rnd_round_a == rnd_round_b) {
+							rnd_round_b = rand() % u_number_rounds;
+						}
+						if (rnd_round_a > rnd_round_b) {
+							tmproundVNS = rnd_round_a;
+							rnd_round_a = rnd_round_b;
+							rnd_round_b = tmproundVNS;
+						}
+
+						testtmp = TestPrtSwapRds(rnd_team_i, rnd_round_a, rnd_round_b).second;
+						if (testtmp == 0) {
+							validtest = true;
+							newdistance = TestPrtSwapRds(rnd_team_i, rnd_round_a, rnd_round_b).first;
+						}
+					}
+				}
+				else if (n == 5) {
+					while (validtest == false) {
+						rnd_team_i = rand() % u_number_teams;
+						rnd_team_j = rand() % u_number_teams;
+						rnd_round_a = rand() % u_number_rounds;
+						while (rnd_team_i == rnd_team_j) {
+							rnd_team_j = rand() % u_number_teams;
+						}
+						if (rnd_team_i > rnd_team_j) {
+							tmpteamVNS = rnd_team_i;
+							rnd_team_i = rnd_team_j;
+							rnd_team_j = tmpteamVNS;
+						}
+
+						testtmp = TestPrtSwapTms(rnd_team_i, rnd_team_j, rnd_round_a).second;
+						if (testtmp == 0) {
+							validtest = true;
+							newdistance = TestPrtSwapTms(rnd_team_i, rnd_team_j, rnd_round_a).first;
+						}
+					}
+				}
+
+				//Differenz (gain des steps) berechnen:
+				diff = newdistance;
+
+				//akzeptanz (wenn lsg besser oder wenn wahrscheinlichkeit abhänig von temperatur
+
+				//zufallszahl für wahrscheinlichkeit erzeugen
+				epsilon = ((double)rand() / (RAND_MAX)) + 1;
+
+				if (diff >= 0) {
+					counter++;
+					if (n == 1) {
+						SwapHA(rnd_team_i, rnd_team_j);
+					}
+					else if (n == 2) {
+						SwapRds(rnd_round_a, rnd_round_b);
+					}
+					else if (n == 3) {
+						SwapTms(rnd_team_i, rnd_team_j);
+					}
+					else if (n == 4) {
+						PrtSwapRds(rnd_team_i, rnd_round_a, rnd_round_b);
+					}
+					else if (n == 5) {
+						PrtSwapTms(rnd_team_i, rnd_team_j, rnd_round_a);
+					}
+					//wenn valide und besser als bisher bestes dann neues beste updaten:
+					if (Calculate_Distance() < currentbest.first) {
+						currentbest = save();
+						besttemperatur = temperatur;
+					}
+				}
+				else if (epsilon <= exp((diff / temperatur)*(-1))) {
+					counter++;
+					if (n == 1) {
+						SwapHA(rnd_team_i, rnd_team_j);
+					}
+					else if (n == 2) {
+						SwapRds(rnd_round_a, rnd_round_b);
+					}
+					else if (n == 3) {
+						SwapTms(rnd_team_i, rnd_team_j);
+					}
+					else if (n == 4) {
+						PrtSwapRds(rnd_team_i, rnd_round_a, rnd_round_b);
+					}
+					else if (n == 5) {
+						PrtSwapTms(rnd_team_i, rnd_team_j, rnd_round_a);
+					}
+					//wenn valide und besser als bisher bestes dann neues beste updaten:
+					if (Calculate_Distance() < currentbest.first) {
+						if (validtest == true) {
+							currentbest = save();
+							besttemperatur = temperatur;
+						}
+					}
+				}
+
+			}
+			//temperatur updaten:
+			//Cooling schemes:
+			if (cooling == 1) {
+				temperatur = temperatur * 0.9999;
+			}
+
+			//hier weitere cooling schemes ergänzbar
+
+		}
+		//reheat:
+		temperatur = 2 * besttemperatur;
+	}
+	//beste lsg wieder herstellen:
+	restore(currentbest);
 }
 
 

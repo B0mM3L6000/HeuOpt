@@ -49,7 +49,7 @@ void CreateStartSolution( string filename, string output, int k )
 	
 	//SolutionFile erstellen
 	bool neueDatei = false;
-	string filename2 = "solution_uebung3_tests.csv";
+	string filename2 = "solution_uebung3_ILS.csv";
 	ifstream temp(filename2);
 	if (!temp) neueDatei = true;
 	else temp.close();
@@ -167,7 +167,7 @@ void main()
 	}
 	cout << "Auswahl: K = " << k << endl;
 	*/
-	int k = 5;   //k hier einstellen
+	int k = 1;   //k hier einstellen
 	int durchlaufe = 1;  //wieviele durchläufe pro instanz
 
 	for (int idx = instance_idx1; idx <= instance_idx2; idx++)
